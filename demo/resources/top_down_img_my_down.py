@@ -4,16 +4,13 @@ import sys
 import warnings
 import cv2
 from argparse import ArgumentParser
-
-from xtcocotools.coco import COCO
-
 from mmpose.apis import (inference_top_down_pose_model, init_pose_model,
                          vis_pose_result)
 from mmpose.datasets import DatasetInfo
 
 file_root = r'/data2/5-标注数据/CYS.220317-雅康-欣旺达切叠一体机-定位/实验2-关键点'  # 当前文件夹下的所有图片
 Run_config = "configs2/CYS.220317-雅康-欣旺达切叠一体机/定位配置文件.py"
-Pose_checkpoint = '/data/ypw/epoch_190.pth'
+Pose_checkpoint = '/data/ypw/sonicpose/work_dirs/定位配置文件/epoch_20.pth'
 
 projectName = 'CYS.220317-雅康-欣旺达切叠一体机'
 Result_path = 'InferResult/' + projectName

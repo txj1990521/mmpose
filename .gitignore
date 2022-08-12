@@ -4,6 +4,30 @@ __pycache__/
 *$py.class
 **/*.pyc
 
+## Unimportant file
+release
+build/
+.idea/
+*egg-info
+dist/
+models/
+*/__pycache__/
+*log.txt
+sonic/
+work_dir
+work_dirs
+
+*.build
+*.txt
+*.log
+*.jpg
+*.bmp
+*.png
+*.tif
+*.tiff
+sample
+path_recent.yaml
+
 # C extensions
 *.so
 

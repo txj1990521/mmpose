@@ -1,5 +1,3 @@
-from myFile import *
-
 # 本地路径
 # _base_ = ['E:/MMpose/mmpose/configs2/CYS.220317-雅康-欣旺达切叠一体机/骨骼点配置.py']
 
@@ -17,7 +15,7 @@ data_root = '/data/txj/data/CYS.220317-雅康-欣旺达切叠一体机/PreparDat
 JointNum = 2
 custom_imports = dict(
     imports=[
-        "sonic_ai.topdown_custom_dataset", "configs2.model.loss.CDJ_loss"],
+        "sonic_ai.topdown_custom_dataset"],
     allow_failed_imports=True)
 
 Setdataset_channel = [[0, 1], ]
@@ -66,7 +64,7 @@ model = dict(
         type='TopdownHeatmapSimpleHead',
         in_channels=2048,
         out_channels=channel_cfg['num_output_channels'],
-        loss_keypoint=dict(type='JointsMSELossUnSetJoint', use_target_weight=True)),
+        loss_keypoint=dict(type='JointsMSELoss', use_target_weight=True)),
     train_cfg=dict(),
     test_cfg=dict(
         flip_test=True,

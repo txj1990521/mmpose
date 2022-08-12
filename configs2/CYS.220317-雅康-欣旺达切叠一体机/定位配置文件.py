@@ -26,8 +26,6 @@ load_from = None
 resume_from = None
 dist_params = dict(backend='nccl')
 workflow = [('train', 1)]
-checkpoint_config = dict(interval=10)
-evaluation = dict(interval=10, metric='mAP', save_best='AP')
 
 optimizer = dict(
     type='Adam',
@@ -42,8 +40,11 @@ lr_config = dict(
     warmup_ratio=0.001,
     step=[170, 200])
 total_epochs = 200
+
+checkpoint_config = dict(interval=10)
+evaluation = dict(interval=100, metric='mAP', save_best='AP')
 log_config = dict(
-    interval=50,
+    interval=7,
     hooks=[
         dict(type='TextLoggerHook'),
         # dict(type='TensorboardLoggerHook')

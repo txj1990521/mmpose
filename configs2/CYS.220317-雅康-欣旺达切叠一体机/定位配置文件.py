@@ -9,7 +9,7 @@ dataset_info_test = {{_base_.dataset_info}}
 # 本地路径
 # data_root = 'D:/CYS.220317-雅康-欣旺达切叠一体机/result/CYS.220317-雅康-欣旺达切叠一体机'  # NG数据
 # 服务器路径
-data_root = '/data2/5-标注数据/CYS.220317-雅康-欣旺达切叠一体机-定位/实验2-关键点'
+data_root = '/data/14-调试数据/ypw/CYS.220317-雅康-欣旺达切叠一体机'
 
 
 JointNum = 2

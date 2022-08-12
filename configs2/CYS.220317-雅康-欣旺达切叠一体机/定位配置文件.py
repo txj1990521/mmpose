@@ -9,7 +9,7 @@ dataset_info_test = {{_base_.dataset_info}}
 # 本地路径
 # data_root = 'D:/CYS.220317-雅康-欣旺达切叠一体机/result/CYS.220317-雅康-欣旺达切叠一体机'  # NG数据
 # 服务器路径
-data_root = '/data/txj/data/CYS.220317-雅康-欣旺达切叠一体机/PreparData/'
+data_root = '/data2/5-标注数据/CYS.220317-雅康-欣旺达切叠一体机-定位/实验2-关键点'
 
 
 JointNum = 2
@@ -58,11 +58,11 @@ channel_cfg = dict(
 # model settings
 model = dict(
     type='TopDown',
-    pretrained='torchvision://resnet50',
-    backbone=dict(type='ResNet', depth=50),
+    pretrained='torchvision://resnet18',
+    backbone=dict(type='ResNet', depth=18),
     keypoint_head=dict(
         type='TopdownHeatmapSimpleHead',
-        in_channels=2048,
+        in_channels=512,
         out_channels=channel_cfg['num_output_channels'],
         loss_keypoint=dict(type='JointsMSELoss', use_target_weight=True)),
     train_cfg=dict(),

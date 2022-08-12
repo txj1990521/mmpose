@@ -3,6 +3,7 @@ import os
 import sys
 import warnings
 import cv2
+from tqdm import tqdm
 from argparse import ArgumentParser
 from mmpose.apis import (inference_top_down_pose_model, init_pose_model,
                          vis_pose_result)
@@ -74,12 +75,12 @@ def main():
     file_list = os.listdir(file_root)
 
     # process each image
-    for i in range(len(file_list)):
+    for i in tqdm(range(len(file_list))):
         # get bounding box annotations
         image_id = i + 1
         # 读取到图片的名字
         image_name_new = file_root + "/" + file_list[i]
-        print(image_name_new)
+        # print(image_name_new)
         src = cv2.imread(image_name_new)
         h, w = src.shape[:-1]
         # make project bounding boxes产生检测框

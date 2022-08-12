@@ -11,14 +11,13 @@ dataset_info_test = {{_base_.dataset_info}}
 # 服务器路径
 data_root = '/data/14-调试数据/ypw/CYS.220317-雅康-欣旺达切叠一体机'
 
-
 JointNum = 2
 custom_imports = dict(
-    imports=[
-        "sonic_ai.topdown_custom_dataset"],
-    allow_failed_imports=True)
+    imports=["sonic_ai.topdown_custom_dataset"], allow_failed_imports=True)
 
-Setdataset_channel = [[0, 1], ]
+Setdataset_channel = [
+    [0, 1],
+]
 Setinference_channel = [0, 1]
 
 log_level = 'INFO'
@@ -38,13 +37,13 @@ lr_config = dict(
     warmup='linear',
     warmup_iters=500,
     warmup_ratio=0.001,
-    step=[170, 200])
-total_epochs = 200
+    step=[16, 18])
+total_epochs = 20
 
-checkpoint_config = dict(interval=10)
+checkpoint_config = dict(interval=4)
 evaluation = dict(interval=100, metric='mAP', save_best='AP')
 log_config = dict(
-    interval=7,
+    interval=10,
     hooks=[
         dict(type='TextLoggerHook'),
         # dict(type='TensorboardLoggerHook')
@@ -95,8 +94,10 @@ data_cfg = dict(
 
 train_pipeline = [
     dict(type='LoadImageFromFile'),
-    dict(type='TopDownGetBboxCenterScale', padding=1.25),  # 将 bbox 从 [x, y, w, h] 转换为中心和缩放
-    dict(type='TopDownRandomShiftBboxCenter', shift_factor=0.16, prob=0.3),  # 随机移动 bbox 中心。
+    dict(type='TopDownGetBboxCenterScale',
+         padding=1.25),  # 将 bbox 从 [x, y, w, h] 转换为中心和缩放
+    dict(type='TopDownRandomShiftBboxCenter', shift_factor=0.16,
+         prob=0.3),  # 随机移动 bbox 中心。
     dict(type='TopDownRandomFlip', flip_prob=0.5),  # 随机图像翻转的数据增强
     dict(
         type='TopDownHalfBodyTransform',  # 半身数据增强
@@ -142,8 +143,9 @@ val_pipeline = [
 test_pipeline = val_pipeline
 
 data = dict(
-    samples_per_gpu=16,
-    workers_per_gpu=0,
+    persistent_workers=True,
+    samples_per_gpu=4,
+    workers_per_gpu=4,
     val_dataloader=dict(samples_per_gpu=32),
     test_dataloader=dict(samples_per_gpu=32),
     train=dict(

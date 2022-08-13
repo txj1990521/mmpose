@@ -1,6 +1,7 @@
 import time
-
+import os
 from sonic_ai.pipelines.init_pipeline import LoadCategoryList
+from configs2.base.base_sonic_dataset import Setinference_channel
 
 # 服务器路径
 _base_ = ['../base/mask_rcnn_r18_fpn.py', '../base/default_runtime.py',
@@ -8,25 +9,28 @@ _base_ = ['../base/mask_rcnn_r18_fpn.py', '../base/default_runtime.py',
           './骨骼点配置.py']
 
 # 服务器路径
-data_root = '/data/14-调试数据/ypw/CYS.220317-雅康-欣旺达切叠一体机'
-project_name = 'CYS.220317-雅康-欣旺达切叠一体机'
+project_name = 'CYS.220317-雅康-欣旺达切叠一体机实验/2-关键点'
 dataset_path = f'/data2/5-标注数据/{project_name}'
-label_path = f'{dataset_path}/label.ini'
-
-JointNum = 2
-
+label_path = os.path.dirname(os.path.realpath(f'{dataset_path}')) + '/label.ini'
+num_classes = len(
+    LoadCategoryList()(results={
+        'label_path': label_path
+    })['category_list'])
+current_channel = Setinference_channel[:num_classes]
 Setdataset_channel = [
-    [0, 1],
+    current_channel,
 ]
-Setinference_channel = [0, 1]
-total_epochs = 20
+Setinference_channel = current_channel
+save_model_path = '/data/14-调试数据/txj/CYS.220317-雅康-欣旺达切叠一体机'
+badcase_path = save_model_path
+timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
 
 checkpoint_config = dict(interval=4)
 evaluation = dict(interval=100, metric='mAP', save_best='AP')
 
 channel_cfg = dict(
-    num_output_channels=JointNum,
-    dataset_joints=JointNum,
+    num_output_channels=num_classes,
+    dataset_joints=num_classes,
     dataset_channel=Setdataset_channel,
     inference_channel=Setinference_channel)
 
@@ -124,7 +128,7 @@ train_init_pipeline = [
     dict(type='LoadLabelmeDataset'),
     dict(type='StatCategoryCounter'),
     dict(type='CopyData', times=1),
-    dict(type='Labelme2Coco'),
+    dict(type='Labelme2coco_keypoints'),
     dict(type='CopyErrorPath', copy_error_file_path='/data/14-调试数据/cyf'),
     dict(type='SaveJson'),
 ]
@@ -137,23 +141,34 @@ data = dict(
     test_dataloader=dict(samples_per_gpu=32),
     train=dict(
         type='TopDownCustomDataset',
-        ann_file=f'{data_root}/annotations/keypoints_train.json',
-        img_prefix=f'{data_root}/train/',
+        label_path=label_path,
+        filter_empty_gt=False,
+        init_pipeline=train_init_pipeline,
         data_cfg=data_cfg,
         pipeline=train_pipeline,
         dataset_info={{_base_.dataset_info}}),
     val=dict(
         type='TopDownCustomDataset',
-        ann_file=f'{data_root}/annotations/keypoints_val.json',
-        img_prefix=f'{data_root}/val/',
+        label_path=label_path,
+        filter_empty_gt=False,
+        init_pipeline=train_init_pipeline,
         data_cfg=data_cfg,
         pipeline=val_pipeline,
         dataset_info={{_base_.dataset_info}}),
     test=dict(
         type='TopDownCustomDataset',
-        ann_file=f'{data_root}/annotations/keypoints_val.json',
-        img_prefix=f'{data_root}/val/',
+        label_path=label_path,
+        filter_empty_gt=False,
+        init_pipeline=train_init_pipeline,
         data_cfg=data_cfg,
         pipeline=test_pipeline,
         dataset_info={{_base_.dataset_info}}),
 )
+
+# learning policy
+lr_config = dict(
+    policy='step',
+    warmup='linear',
+    warmup_iters=500,
+    warmup_ratio=0.001,
+    step=[4, 5])

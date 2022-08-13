@@ -14,22 +14,21 @@ class SonicDataset(CocoDataset):
 
     def __init__(
             self,
-            dataset_path_list,
-            label_path,
-            init_pipeline,
-            filter_empty_gt=True,
-            timestamp=None,
-            eval_pipeline=None,
-            copy_pred_bad_case_path='/data/14-调试数据/过漏检数据',
-            right_labels=None,
-            start=None,
-            end=None,
-            times=None,
-            ignore_labels=None,
-            ok_dataset_path_list=None,
+            dataset_path_list,  # 数据集路径 string，list
+            label_path,  # 映射表路径
+            init_pipeline,  # 数据预处理的pipeline
+            filter_empty_gt=True,  # 当使用LoadOKPathList时要置为False
+            timestamp=None,  # 时间戳，将会成为生成的文件名
+            eval_pipeline=None,  # 训练评估的pipeline
+            copy_pred_bad_case_path='/data/14-调试数据/过漏检数据',  # 过漏检数据的路径
+            right_labels=None,  # OK的label，默认为['OK', "mark孔OK"]
+            start=None,  # 数据的开始，0~1
+            end=None,  # 数据的结束，0~1
+            times=None,  # 重复次数
+            ignore_labels=None,  # 屏蔽的label，默认为['屏蔽']
             *args,
             **kwargs):
-
+        """当dataset的参数和pipeline的参数有冲突时，以dataset的参数为主"""
         if right_labels is None:
             right_labels = ['OK', "mark孔OK"]
         self.right_labels = right_labels
@@ -44,8 +43,7 @@ class SonicDataset(CocoDataset):
             start=start,
             end=end,
             times=times,
-            ignore_labels=ignore_labels,
-            ok_dataset_path_list=ok_dataset_path_list)
+            ignore_labels=ignore_labels)
         compose = Compose(init_pipeline)
         compose(self.data)
 

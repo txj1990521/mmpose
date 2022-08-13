@@ -1,24 +1,31 @@
+import time
+
 custom_imports = dict(
-    imports=[],
-    allow_failed_imports=True)
+    imports=["sonic_ai.topdown_custom_dataset", 'sonic_ai.sonic_dataset', 'sonic_ai.pipelines.init_pipeline',
+             'sonic_ai.pipelines.eval_pipeline',
+             'sonic_ai.pipelines.save_pipeline',
+             'sonic_ai.pipelines.after_run_pipeline',
+             'sonic_ai.sonic_after_run_hook'], allow_failed_imports=True)
 
 dataset_type = 'SonicDataset'
-
+img_scale = (640, 640)
+Setdataset_channel = [
+    [0, 1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+]
+Setinference_channel = [0, 1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
 
 train_init_pipeline = [
-    dict(type='CopyData2Local', target_dir='/data/公共数据缓存', run_rsync=True),
-    dict(type='LoadCategoryList', ignore_labels=['屏蔽']),
-    dict(type='LoadPathList'),
-    dict(type='SplitData', start=0, end=0.8, key='json_path_list'),
-    dict(type='LoadJsonDataList'),
-    dict(type='LoadLabelmeDataset'),
-    dict(type='StatCategoryCounter'),
-    dict(type='CopyData', times=1),
-    dict(type='Labelme2Coco'),
-    # dict(type='LoadOKPathList'),
-    # dict(type='ShuffleCocoImage'),
+    dict(type='CopyData2Local', target_dir='/data/公共数据缓存', run_rsync=True),  # 将训练数据保存到本地，使用rsync
+    dict(type='LoadCategoryList', ignore_labels=['屏蔽']),  # 通过文件读取映射表，这里不能logger
+    dict(type='LoadPathList'),  # 读取路径下的数据
+    dict(type='SplitData', start=0, end=0.8, key='json_path_list'),  # 分割数据集，用于训练集和验证集
+    dict(type='LoadJsonDataList'),  # 读取数据列表中json的数据
+    dict(type='LoadLabelmeDataset'),  # 通过json数据对数据进行筛选
+    dict(type='CopyData', times=1),  # 将数据翻倍
+    dict(type='Labelme2Coco'),  # 将labelme数据转化为coco数据
     dict(type='CopyErrorPath', copy_error_file_path='/data/14-调试数据/cyf'),
-    dict(type='SaveJson'),
+    # 将无法参与训练的数据保存在指定路径。例如类别没有出现在映射表中，没有找到图片，json损坏等
+    dict(type='SaveJson'),  # 保存coco json
 ]
 
 test_init_pipeline = [
@@ -35,6 +42,12 @@ test_init_pipeline = [
 ]
 train_pipeline = [
     dict(type='LoadImageFromFile'),
+    dict(type='LoadAnnotations', with_bbox=True, with_mask=True),
+    dict(
+        type='Resize',
+        img_scale=img_scale,
+        ratio_range=[0.75, 1.25],
+        keep_ratio=True),
     dict(type='TopDownGetBboxCenterScale', padding=1.25),  # 将 bbox 从 [x, y, w, h] 转换为中心和缩放
     dict(type='TopDownRandomShiftBboxCenter', shift_factor=0.16, prob=0.3),  # 随机移动 bbox 中心。
     dict(type='TopDownRandomFlip', flip_prob=0.5),  # 随机图像翻转的数据增强
@@ -85,6 +98,7 @@ eval_pipeline = [
     dict(type='CreateConfusionMatrix'),
     dict(type='CopyErrorCases')
 ]
+
 # 准备数据
 data = dict(
     persistent_workers=True,
@@ -105,4 +119,3 @@ data = dict(
         pipeline=test_pipeline,
         init_pipeline=test_init_pipeline,
         eval_pipeline=eval_pipeline))
-

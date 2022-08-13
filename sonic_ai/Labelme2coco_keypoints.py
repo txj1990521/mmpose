@@ -243,11 +243,11 @@ def labelme2coco_process(dictConfig):
         base_path：数据集放置的根路径
     """
     base_path = dictConfig['output']
+    # 创建文件夹
     global annotationsPath, trainPath, vlaPath
     annotationsPath = os.path.join(base_path, dictConfig['project_name'], "annotations")
     trainPath = os.path.join(base_path, dictConfig['project_name'], "train")
     vlaPath = os.path.join(base_path, dictConfig['project_name'], "val")
-
     if not os.path.exists(annotationsPath):
         os.makedirs(annotationsPath)
     if not os.path.exists(trainPath):
@@ -260,7 +260,7 @@ def labelme2coco_process(dictConfig):
 
     labelme_path = dictConfig['input']
     saved_coco_path = dictConfig['output']
-    # init_dir(dictConfig)  # 初始化COCO数据集的文件夹结构
+    # 分离数据
     json_list_path = glob.glob(labelme_path + "/*.json")
     train_path, val_path = train_test_split(json_list_path, test_size=dictConfig['ratio'])
     print('{} for training'.format(len(train_path)),

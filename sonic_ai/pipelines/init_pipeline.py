@@ -10,7 +10,6 @@ from collections import Counter
 from glob import glob
 from pathlib import Path
 import json
-from labelme import utils
 import cv2
 import mmcv
 import numpy as np

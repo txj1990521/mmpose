@@ -14,6 +14,7 @@ from mmpose.datasets.builder import PIPELINES
 @PIPELINES.register_module()
 class TopDownGetBboxCenterScale:
     """Convert bbox from [x, y, w, h] to center and scale.
+将 bbox 从 [x, y, w, h] 转换为中心和缩放
 
     The center is the coordinates of the bbox center, and the scale is the
     bbox width and height normalized by a scale factor.

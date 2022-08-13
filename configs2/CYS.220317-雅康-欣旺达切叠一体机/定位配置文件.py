@@ -9,7 +9,11 @@ dataset_info_test = {{_base_.dataset_info}}
 # 本地路径
 # data_root = 'D:/CYS.220317-雅康-欣旺达切叠一体机/result/CYS.220317-雅康-欣旺达切叠一体机'  # NG数据
 # 服务器路径
+<<<<<<< Updated upstream
 data_root = '/data/14-调试数据/ypw/CYS.220317-雅康-欣旺达切叠一体机'
+=======
+data_root = '/data/txj/data/CYS.220317-雅康-欣旺达切叠一体机/PreparData/'
+>>>>>>> Stashed changes
 
 JointNum = 2
 custom_imports = dict(

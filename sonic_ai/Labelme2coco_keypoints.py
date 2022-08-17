@@ -3,13 +3,9 @@ import sys
 import glob
 import json
 import shutil
-import argparse
 import numpy as np
-from PIL import Image
-import os.path as osp
-import cv2 as cv
+
 from tqdm import tqdm
-from labelme import utils
 from sklearn.model_selection import train_test_split
 
 image_type = ''
@@ -18,7 +14,7 @@ trainPath = ''
 vlaPath = ''
 
 
-class Labelme2coco_keypoints():
+class Labelme2cocoKypoints():
     def __init__(self, dictConfig):
         """
         Lableme 关键点数据集转 COCO 数据集的构造函数:
@@ -234,56 +230,58 @@ class Labelme2coco_keypoints():
 
 
 def labelme2coco_process(dictConfig):
-    """
-    初始化COCO数据集的文件夹结构；
-    coco - annotations  #标注文件路径
-         - train        #训练数据集
-         - val          #验证数据集
-    Args：
-        base_path：数据集放置的根路径
-    """
-    base_path = dictConfig['output']
-    # 创建文件夹
-    global annotationsPath, trainPath, vlaPath
-    annotationsPath = os.path.join(base_path, dictConfig['project_name'], "annotations")
-    trainPath = os.path.join(base_path, dictConfig['project_name'], "train")
-    vlaPath = os.path.join(base_path, dictConfig['project_name'], "val")
-    if not os.path.exists(annotationsPath):
-        os.makedirs(annotationsPath)
-    if not os.path.exists(trainPath):
-        os.makedirs(trainPath)
-    if not os.path.exists(vlaPath):
-        os.makedirs(vlaPath)
+        """
+        初始化COCO数据集的文件夹结构；
+        coco - annotations  #标注文件路径
+             - train        #训练数据集
+             - val          #验证数据集
+        Args：
+            base_path：数据集放置的根路径
+        """
+        base_path = dictConfig['output']
+        # 创建文件夹
+        global annotationsPath, trainPath, vlaPath
+        annotationsPath = os.path.join(base_path, dictConfig['project_name'], "annotations")
+        trainPath = os.path.join(base_path, dictConfig['project_name'], "train")
+        vlaPath = os.path.join(base_path, dictConfig['project_name'], "val")
+        if not os.path.exists(annotationsPath):
+            os.makedirs(annotationsPath)
+        if not os.path.exists(trainPath):
+            os.makedirs(trainPath)
+        if not os.path.exists(vlaPath):
+            os.makedirs(vlaPath)
 
-    # 是否生成骨骼点数据
-    isMakeKeyPointData = 1
+        # 是否生成骨骼点数据
+        isMakeKeyPointData = 1
 
-    labelme_path = dictConfig['input']
-    saved_coco_path = dictConfig['output']
-    # 分离数据
-    json_list_path = glob.glob(labelme_path + "/*.json")
-    train_path, val_path = train_test_split(json_list_path, test_size=dictConfig['ratio'])
-    print('{} for training'.format(len(train_path)),
-          '\n{} for testing'.format(len(val_path)))
-    print('Start transform please wait ...')
+        labelme_path = dictConfig['input']
+        saved_coco_path = dictConfig['output']
+        # 分离数据
+        json_list_path = glob.glob(labelme_path + "/*.json")
+        train_path, val_path = train_test_split(json_list_path, test_size=dictConfig['ratio'])
+        print('{} for training'.format(len(train_path)),
+              '\n{} for testing'.format(len(val_path)))
+        print('Start transform please wait ...')
 
-    l2c_train = Labelme2coco_keypoints(dictConfig)  # 构造数据集生成类
-    # 生成训练集
-    train_keypoints = l2c_train.to_coco(train_path, isMakeKeyPointData, dictConfig)
-    l2c_train.save_coco_json(train_keypoints,
-                             os.path.join(saved_coco_path, dictConfig['project_name'], "annotations",
-                                          "keypoints_train.json"))
-    # 生成验证集
-    l2c_val = Labelme2coco_keypoints(dictConfig)
-    val_instance = l2c_val.to_coco(val_path, isMakeKeyPointData, dictConfig)
-    l2c_val.save_coco_json(val_instance, os.path.join(saved_coco_path, dictConfig['project_name'], "annotations",
-                                                      "keypoints_val.json"))
+        l2c_train = Labelme2cocoKypoints(dictConfig)  # 构造数据集生成类
+        # 生成训练集
+        train_keypoints = l2c_train.to_coco(train_path, isMakeKeyPointData, dictConfig)
+        l2c_train.save_coco_json(train_keypoints,
+                                 os.path.join(saved_coco_path, dictConfig['project_name'], "annotations",
+                                              "keypoints_train.json"))
+        # 生成验证集
+        l2c_val = Labelme2cocoKypoints(dictConfig)
+        val_instance = l2c_val.to_coco(val_path, isMakeKeyPointData, dictConfig)
+        l2c_val.save_coco_json(val_instance, os.path.join(saved_coco_path, dictConfig['project_name'], "annotations",
+                                                          "keypoints_val.json"))
 
-    # # 拷贝 labelme 的原始图片到训练集和验证集里面
-    global image_type
-    for file in train_path:
-        shutil.copy(file.replace("json", image_type), trainPath)
-    for file in val_path:
-        shutil.copy(file.replace("json", image_type), vlaPath)
-    print('生成完毕！')
-    sys.exit()
+        # # 拷贝 labelme 的原始图片到训练集和验证集里面
+        global image_type
+        for file in train_path:
+            shutil.copy(file.replace("json", image_type), trainPath)
+        for file in val_path:
+            shutil.copy(file.replace("json", image_type), vlaPath)
+        print('生成完毕！')
+        sys.exit()
+
+

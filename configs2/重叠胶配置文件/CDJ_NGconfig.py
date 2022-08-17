@@ -1,11 +1,10 @@
 from myFile import *
 
 # 本地路径
-_base_ = ['E:/MMpose/mmpose/configs2/base/CDJ_data.py']
+_base_ = ['/configs2/base/CDJ_data.py']
 # 服务器路径
 # _base_ = ['/data/txj/mmpose/configs/_base_/datasets/custom.py']
 
-dataset_info_test = {{_base_.dataset_info}}
 
 # 本地路径
 data_root = 'D:/20220712chongdiejiao/NgImages/result/coco'  # NG数据

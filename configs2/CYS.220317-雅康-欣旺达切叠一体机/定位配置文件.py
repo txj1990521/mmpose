@@ -3,26 +3,52 @@ import time
 from sonic_ai.pipelines.init_pipeline import LoadCategoryList
 
 # 服务器路径
-_base_ = ['../base/mask_rcnn_r18_fpn.py', '../base/default_runtime.py',
-          '../base/schedule_sonic.py', '../base/base_sonic_dataset.py',
-          './骨骼点配置.py']
+_base_ = ['./骨骼点配置.py']
 
 # 服务器路径
 data_root = '/data/14-调试数据/ypw/CYS.220317-雅康-欣旺达切叠一体机'
 project_name = 'CYS.220317-雅康-欣旺达切叠一体机'
 dataset_path = f'/data2/5-标注数据/{project_name}'
-label_path = f'{dataset_path}/label.ini'
+
 
 JointNum = 2
-
+custom_imports = dict(
+    imports=[
+        "sonic_ai.topdown_custom_dataset", "configs2.model.loss.CDJ_loss"],
+    allow_failed_imports=True)
 Setdataset_channel = [
     [0, 1],
 ]
 Setinference_channel = [0, 1]
 total_epochs = 20
 
+log_level = 'INFO'
+load_from = None
+resume_from = None
+dist_params = dict(backend='nccl')
+workflow = [('train', 1)]
+
 checkpoint_config = dict(interval=4)
 evaluation = dict(interval=100, metric='mAP', save_best='AP')
+optimizer = dict(
+    type='Adam',
+    lr=5e-4,
+)
+optimizer_config = dict(grad_clip=None)
+# learning policy
+lr_config = dict(
+    policy='step',
+    warmup='linear',
+    warmup_iters=500,
+    warmup_ratio=0.001,
+    step=[170, 200])
+total_epochs = 200
+log_config = dict(
+    interval=50,
+    hooks=[
+        dict(type='TextLoggerHook'),
+        # dict(type='TensorboardLoggerHook')
+    ])
 
 channel_cfg = dict(
     num_output_channels=JointNum,
@@ -114,20 +140,6 @@ val_pipeline = [
 ]
 
 test_pipeline = val_pipeline
-
-train_init_pipeline = [
-    dict(type='CopyData2Local', target_dir='/data/公共数据缓存', run_rsync=True),
-    dict(type='LoadCategoryList', ignore_labels=['屏蔽']),
-    dict(type='LoadPathList'),
-    dict(type='SplitData', start=0, end=0.8, key='json_path_list'),
-    dict(type='LoadJsonDataList'),
-    dict(type='LoadLabelmeDataset'),
-    dict(type='StatCategoryCounter'),
-    dict(type='CopyData', times=1),
-    dict(type='Labelme2Coco'),
-    dict(type='CopyErrorPath', copy_error_file_path='/data/14-调试数据/cyf'),
-    dict(type='SaveJson'),
-]
 
 data = dict(
     persistent_workers=True,

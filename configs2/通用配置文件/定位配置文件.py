@@ -4,18 +4,19 @@ from sonic_ai.pipelines.init_pipeline import LoadCategoryList
 from configs2.base.base_sonic_dataset import Setinference_channel
 
 # 服务器路径
-_base_ = ['../base/mask_rcnn_r18_fpn.py', '../base/default_runtime.py',
-          '../base/schedule_sonic.py', '../base/base_sonic_dataset.py',
+_base_ = ['../base/default_runtime.py',
+          '../base/schedule_sonic.py',
+          '../base/base_sonic_dataset.py',
           './骨骼点配置.py']
 
 # 服务器路径
-project_name = 'CYS.220317-雅康-欣旺达切叠一体机实验/2-关键点'
+
+project_name = 'CYS.220317-雅康-欣旺达切叠一体机-定位/实验2-关键点'
 dataset_path = f'/data2/5-标注数据/{project_name}'
 label_path = os.path.dirname(os.path.realpath(f'{dataset_path}')) + '/label.ini'
+dataset_path_list = [f'{dataset_path}']
 num_classes = len(
-    LoadCategoryList()(results={
-        'label_path': label_path
-    })['category_list'])
+    LoadCategoryList()(results={'label_path': label_path})['point_list'])
 current_channel = Setinference_channel[:num_classes]
 Setdataset_channel = [
     current_channel,
@@ -129,7 +130,7 @@ train_init_pipeline = [
     dict(type='StatCategoryCounter'),
     dict(type='CopyData', times=1),
     dict(type='Labelme2coco_keypoints'),
-    dict(type='CopyErrorPath', copy_error_file_path='/data/14-调试数据/cyf'),
+    dict(type='CopyErrorPath', copy_error_file_path='/data/14-调试数据/txj'),
     dict(type='SaveJson'),
 ]
 
@@ -140,25 +141,23 @@ data = dict(
     val_dataloader=dict(samples_per_gpu=32),
     test_dataloader=dict(samples_per_gpu=32),
     train=dict(
-        type='TopDownCustomDataset',
         label_path=label_path,
-        filter_empty_gt=False,
         init_pipeline=train_init_pipeline,
         data_cfg=data_cfg,
         pipeline=train_pipeline,
+        dataset_path_list=dataset_path_list,
         dataset_info={{_base_.dataset_info}}),
+
     val=dict(
-        type='TopDownCustomDataset',
         label_path=label_path,
-        filter_empty_gt=False,
+        dataset_path_list=dataset_path_list,
         init_pipeline=train_init_pipeline,
         data_cfg=data_cfg,
         pipeline=val_pipeline,
         dataset_info={{_base_.dataset_info}}),
     test=dict(
-        type='TopDownCustomDataset',
         label_path=label_path,
-        filter_empty_gt=False,
+        dataset_path_list=dataset_path_list,
         init_pipeline=train_init_pipeline,
         data_cfg=data_cfg,
         pipeline=test_pipeline,

@@ -20,13 +20,80 @@ from tqdm import tqdm
 from sklearn.model_selection import train_test_split
 from mmdet.datasets.builder import PIPELINES
 from mmdet.utils import get_root_logger
-from sonic_ai.Labelme2coco_keypoints import Labelme2coco_keypoints
+from sonic_ai.Labelme2coco_keypoints import Labelme2cocoKypoints
+from sonic_ai.pipelines.utils_labelme import copy_json_and_img, shape_to_points
 
 
 @PIPELINES.register_module()
 class Labelme2coco_keypoints:
     def __call__(self, results, *args, **kwargs):
-        Labelme2coco_keypoints.labelme2coco_process(results)
+        category_list = results['category_list']
+        category_map = results['category_map']
+        json_data_list = results['json_data_list']
+        ignore_labels = results['ignore_labels']
+        error_file_path = results['error_file_path']
+        joint_num = len(results['error_file_path'])
+        logger = get_root_logger()
+        logger.propagate = False
+
+        annotations = []
+        images = []
+
+        bboxes_list, keypoints_list = [], []
+
+        obj_count = 0
+        if (dist.is_initialized()
+            and dist.get_rank() == 0) or not dist.is_initialized():
+            disable = False
+        else:
+            disable = True
+        with tqdm(json_data_list, desc='Labelme2coco_keypoints', disable=disable) as pbar:
+            for idx, data in enumerate(pbar):
+                filename = data['imagePath']
+
+                height, width = data['imageHeight'], data['imageWidth']
+                images.append(
+                    dict(
+                        id=idx, file_name=filename, height=height,
+                        width=width))
+                for shape in data['shapes']:
+                    if shape['shape_type'] == 'point':
+                        keypoints_list.append(shape)
+                    elif shape['shape_type'] == 'rectangle':  # bboxs
+                        bboxes_list.append(shape)
+
+                    if shape['label'] not in category_map:
+                        logger.warning('发现未知标签', idx, shape)
+                        continue
+                    if category_map[shape['label']] in ignore_labels:
+                        continue
+                    new_points = []
+                    try:
+                        new_points = shape_to_points(shape, height, width)
+                    except:
+                        logger.error(traceback.format_exc())
+
+                    if len(new_points) == 0:
+                        logger.warning(
+                            f"解析 shape 失败, {shape['label']}，图片路径为{filename}")
+                        error_file_path.append(data['json_path'])
+                        continue
+                    category_id = category_list.index(
+                        category_map[shape['label']])
+
+                    self._annotation(bboxes_list, keypoints_list, data['json_path'], 1, dictConfig)
+                    obj_count += 1
+
+        categories = [
+            {
+                'id': i,
+                'name': x
+            } for i, x in enumerate(category_list)
+        ]
+        results['error_file_path'] = error_file_path
+        results['json_data_dic'] = dict(
+            images=images, annotations=annotations, categories=categories)
+
         return results
 
     def __repr__(self):
@@ -54,6 +121,7 @@ class LoadCategoryList:
         with open(label_path, encoding='utf-8') as f:
             lines = f.readlines()
         category_map = {}
+        point_list = {}
         for line in lines:
             line2 = line.replace('\n', '').split()
             if len(line2) == 2:
@@ -62,6 +130,7 @@ class LoadCategoryList:
                 print(f'解析类别映射错误：{line}')
 
         category_list = list(category_map.values())
+
         category_list = sorted(set(category_list), key=category_list.index)
         for ignore_label in ignore_labels:
             if ignore_label in category_list:
@@ -69,6 +138,12 @@ class LoadCategoryList:
 
         results['category_map'] = category_map
         results['category_list'] = category_list
+        point_list = []
+        for m in category_list:
+            if '识别框' not in m:
+                point_list.append(m)
+
+        results['point_list'] = point_list
 
         return results
 
@@ -592,6 +667,40 @@ class LoadXndMutilChannelImgPathList:
         logger.info(f"筛选后{len(new_json_data_list)}组")
         results['json_data_list'] = new_json_data_list
         results['error_file_path'] = error_file_path
+        return results
+
+    def __repr__(self):
+        repr_str = self.__class__.__name__
+        return repr_str
+
+
+@PIPELINES.register_module()
+# 将无法参与训练的数据保存在指定路径。例如类别没有出现在映射表中，没有找到图片，json损坏等
+class CopyErrorPath:
+
+    def __init__(
+            self, copy_error_file_path='/data/14-调试数据/cyf', *args, **kwargs):
+        self.copy_error_file_path = copy_error_file_path
+
+    def __call__(self, results, *args, **kwargs):
+        error_file_path = results['error_file_path']
+        dataset_path_list = results['dataset_path_list']
+        date = time.strftime('%Y%m%d_%H%M%S', time.localtime())
+
+        logger = get_root_logger()
+        logger.propagate = False
+        logger.info(f"无法用来训练的数据的长度为{len(error_file_path)}")
+
+        dataset_commonpath = os.path.commonpath(dataset_path_list)
+        for path in error_file_path:
+            copy_json_and_img(
+                path,
+                Path(
+                    self.copy_error_file_path, date,
+                    Path(path).relative_to(dataset_commonpath)))
+        logger = get_root_logger()
+        logger.propagate = False
+        logger.info(f"复制错误数据至{str(Path(self.copy_error_file_path, date))}完成")
         return results
 
     def __repr__(self):

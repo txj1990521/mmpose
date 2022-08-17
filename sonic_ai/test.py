@@ -2,7 +2,7 @@ from sonic_ai.Labelme2coco_keypoints import labelme2coco_process
 
 className = 'c'
 projectName = 'CYS.220317-雅康-欣旺达切叠一体机'
-inputImagePath = 'Z:/5-标注数据/CYS.220317-雅康-欣旺达切叠一体机-定位/实验2-关键点/'
+inputImagePath = '/data2/5-标注数据/CYS.220317-雅康-欣旺达切叠一体机-定位/实验2-关键点/'
 outputImagePath = 'D:/CYS.220317-雅康-欣旺达切叠一体机/result'
 pointClassNum = 2
 totalClassName = ["a", "b"]

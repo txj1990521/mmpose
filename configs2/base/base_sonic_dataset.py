@@ -1,13 +1,13 @@
 import time
 
 custom_imports = dict(
-    imports=["sonic_ai.topdown_custom_dataset", 'sonic_ai.sonic_dataset', 'sonic_ai.pipelines.init_pipeline',
+    imports=['sonic_ai.sonic_keypoint_dataset',
+             'sonic_ai.pipelines.init_pipeline',
              'sonic_ai.pipelines.eval_pipeline',
              'sonic_ai.pipelines.save_pipeline',
              'sonic_ai.pipelines.after_run_pipeline',
              'sonic_ai.sonic_after_run_hook'], allow_failed_imports=True)
-
-dataset_type = 'SonicDataset'
+dataset_type = 'SonicKeyPointDataset'
 img_scale = (640, 640)
 Setdataset_channel = [
     [0, 1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],

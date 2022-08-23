@@ -21,7 +21,7 @@ from sklearn.model_selection import train_test_split
 from mmdet.datasets.builder import PIPELINES
 from mmdet.utils import get_root_logger
 from sonic_ai.Labelme2coco_keypoints import Labelme2cocoKypoints
-from sonic_ai.pipelines.utils_labelme import copy_json_and_img, shape_to_points
+from sonic_ai.pipelines.utils_labelme import copy_json_and_img, shape_to_points, _annotation
 
 
 @PIPELINES.register_module()
@@ -39,7 +39,7 @@ class Labelme2coco_keypoints:
         annotations = []
         images = []
 
-        bboxes_list, keypoints_list = [], []
+
 
         obj_count = 0
         if (dist.is_initialized()
@@ -49,13 +49,14 @@ class Labelme2coco_keypoints:
             disable = True
         with tqdm(json_data_list, desc='Labelme2coco_keypoints', disable=disable) as pbar:
             for idx, data in enumerate(pbar):
-                filename = data['imagePath']
+                filename = os.path.basename(data['imagePath'])
 
                 height, width = data['imageHeight'], data['imageWidth']
                 images.append(
                     dict(
                         id=idx, file_name=filename, height=height,
                         width=width))
+                bboxes_list, keypoints_list = [], []
                 for shape in data['shapes']:
                     if shape['shape_type'] == 'point':
                         keypoints_list.append(shape)
@@ -81,8 +82,9 @@ class Labelme2coco_keypoints:
                     category_id = category_list.index(
                         category_map[shape['label']])
 
-                    self._annotation(bboxes_list, keypoints_list, data['json_path'], 1, dictConfig)
-                    obj_count += 1
+                _annotation(annotations, bboxes_list, keypoints_list, data['json_path'], 1, len(keypoints_list),
+                            category_id, idx)
+                obj_count += 1
 
         categories = [
             {

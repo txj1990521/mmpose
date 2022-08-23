@@ -2,6 +2,7 @@ import time
 
 custom_imports = dict(
     imports=['sonic_ai.sonic_keypoint_dataset',
+             'sonic_ai.sonic_epoch_based_runner',
              'sonic_ai.pipelines.init_pipeline',
              'sonic_ai.pipelines.eval_pipeline',
              'sonic_ai.pipelines.save_pipeline',
@@ -22,7 +23,7 @@ train_init_pipeline = [
     dict(type='LoadJsonDataList'),  # 读取数据列表中json的数据
     dict(type='LoadLabelmeDataset'),  # 通过json数据对数据进行筛选
     dict(type='CopyData', times=1),  # 将数据翻倍
-    dict(type='Labelme2Coco'),  # 将labelme数据转化为coco数据
+    dict(type='Labelme2coco_keypoints'),  # 将labelme数据转化为coco数据
     dict(type='CopyErrorPath', copy_error_file_path='/data/14-调试数据/cyf'),
     # 将无法参与训练的数据保存在指定路径。例如类别没有出现在映射表中，没有找到图片，json损坏等
     dict(type='SaveJson'),  # 保存coco json
@@ -35,7 +36,7 @@ test_init_pipeline = [
     dict(type='SplitData', start=0.8, end=1, key='json_path_list'),
     dict(type='LoadJsonDataList'),
     dict(type='LoadLabelmeDataset'),
-    dict(type='Labelme2Coco'),
+    dict(type='Labelme2coco_keypoints'),
     dict(type='CopyErrorPath', copy_error_file_path='/data/14-调试数据/cyf'),
     dict(type='StatCategoryCounter'),
     dict(type='SaveJson'),
@@ -108,7 +109,7 @@ data = dict(
         type=dataset_type,
         pipeline=train_pipeline,
         init_pipeline=train_init_pipeline),
-    train_dataloader=dict(class_aware_sampler=dict(num_sample_class=1)),
+    # train_dataloader=dict(class_aware_sampler=dict(num_sample_class=1)),
     val=dict(
         type=dataset_type,
         pipeline=test_pipeline,

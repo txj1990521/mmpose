@@ -10,7 +10,6 @@ _base_ = ['../base/default_runtime.py',
           './骨骼点配置.py']
 
 # 服务器路径
-
 project_name = 'CYS.220317-雅康-欣旺达切叠一体机-定位/实验2-关键点'
 dataset_path = f'/data2/5-标注数据/{project_name}'
 label_path = os.path.dirname(os.path.realpath(f'{dataset_path}')) + '/label.ini'
@@ -25,7 +24,7 @@ Setinference_channel = current_channel
 save_model_path = '/data/14-调试数据/txj/CYS.220317-雅康-欣旺达切叠一体机'
 badcase_path = save_model_path
 timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
-
+total_epochs = 20
 checkpoint_config = dict(interval=4)
 evaluation = dict(interval=100, metric='mAP', save_best='AP')
 
@@ -151,19 +150,30 @@ data = dict(
     val=dict(
         label_path=label_path,
         dataset_path_list=dataset_path_list,
-        init_pipeline=train_init_pipeline,
         data_cfg=data_cfg,
         pipeline=val_pipeline,
-        dataset_info={{_base_.dataset_info}}),
+        dataset_info={{_base_.dataset_info}},
+        timestamp=timestamp,),
     test=dict(
         label_path=label_path,
         dataset_path_list=dataset_path_list,
-        init_pipeline=train_init_pipeline,
         data_cfg=data_cfg,
         pipeline=test_pipeline,
-        dataset_info={{_base_.dataset_info}}),
-)
+        dataset_info={{_base_.dataset_info}},
+        timestamp=timestamp,
+))
+log_config = dict(
+    interval=50,
+    hooks=[
+        dict(type='TextLoggerHook'),
+        # dict(type='TensorboardLoggerHook')
+    ])
 
+runner = dict(
+    save_model_path=f"{save_model_path}/{project_name}",
+    timestamp=timestamp,
+    max_epochs=1)
+LoadCategoryList = None
 # learning policy
 lr_config = dict(
     policy='step',

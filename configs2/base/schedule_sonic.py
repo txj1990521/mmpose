@@ -13,7 +13,7 @@ lr_config = dict(
     warmup_ratio=0.001,
     step=[16, 18])
 
-custom_hooks = [dict(type='SonicAfterRunHook'), dict(type='NumClassCheckHook')]
+custom_hooks = [dict(type='SonicAfterRunHook')]
 
 save_pipeline = [
     dict(
@@ -26,14 +26,14 @@ save_pipeline = [
 ]
 
 after_run_pipeline = [
-    dict(type='DeployModel'),
+    # dict(type='DeployModel'),
     dict(type='EncryptModel'),
     dict(type='SaveLog', create_briefing=True),
 ]
 
 runner = dict(
     type='SonicEpochBasedRunner',
-    save_pipeline=save_pipeline,
+    # save_pipeline=save_pipeline,
     after_run_pipeline=after_run_pipeline,
     max_epochs=12,
 )

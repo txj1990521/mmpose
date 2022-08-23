@@ -1,6 +1,3 @@
-import time
-
-from sonic_ai.pipelines.init_pipeline import LoadCategoryList
 
 # 服务器路径
 _base_ = ['./骨骼点配置.py']
@@ -14,7 +11,7 @@ dataset_path = f'/data2/5-标注数据/{project_name}'
 JointNum = 2
 custom_imports = dict(
     imports=[
-        "sonic_ai.topdown_custom_dataset", "configs2.model.loss.CDJ_loss"],
+        "sonic_ai.topdown_custom_dataset"],
     allow_failed_imports=True)
 Setdataset_channel = [
     [0, 1],

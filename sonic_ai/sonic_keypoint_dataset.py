@@ -149,8 +149,10 @@ class SonicKeyPointDataset(TopDownCocoDataset):
             joints_3d_visible[:, :2] = np.minimum(1, keypoints[:, 2:3])
 
             center, scale = self._xywh2cs(*obj['clean_bbox'][:4])
-
-            image_file = osp.join(self.img_prefix, self.id2name[img_id])
+            if len(self.img_prefix) == 1:
+                image_file = osp.join(self.img_prefix[0], self.id2name[img_id])
+            else:
+                image_file = osp.join(self.img_prefix, self.id2name[img_id])
             rec.append({
                 'image_file': image_file,
                 'center': center,

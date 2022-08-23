@@ -385,7 +385,7 @@ def _get_box(points):
     return [min_x, min_y, max_x - min_x, max_y - min_y]
 
 
-def _annotation(self, bboxes_list, keypoints_list, json_path, ismakeKeypoint, join_num, category_id):
+def _annotation(annotations, bboxes_list, keypoints_list, json_path, ismakeKeypoint, join_num, category_id, idx):
     """
     生成coco标注
 
@@ -410,13 +410,15 @@ def _annotation(self, bboxes_list, keypoints_list, json_path, ismakeKeypoint, jo
         keypoints = []
         num_keypoints = 0
         bbox = object['points']
-        data_anno['id'] = self.ann_id
-        data_anno['image_id'] = self.img_id
-        data_anno['category_id'] = category_id
-        data_anno['iscrowd'] = 0
-        data_anno['area'] = 1.0
-        data_anno['segmentation'] = [np.asarray(bbox).flatten().tolist()]
-        data_anno['bbox'] = _get_box(bbox)
+        data_anno = dict(
+            id=i,
+            image_id=idx,
+            category_id=category_id,
+            iscrowd=0,
+            area=1.0,
+            segmentation=[np.asarray(bbox).flatten().tolist()],
+            bbox=_get_box(bbox), )
+
         if ismakeKeypoint != 1:
             pass
         else:
@@ -424,10 +426,9 @@ def _annotation(self, bboxes_list, keypoints_list, json_path, ismakeKeypoint, jo
                 point = keypoint['points']
                 data_anno['keypoints'], num_keypoints = _get_keypoints(point[0], keypoints, num_keypoints)
             data_anno['num_keypoints'] = num_keypoints
-
+            annotations.append(data_anno)
         i += 1
-        self.ann_id += 1
-        self.annotations.append(data_anno)
+    return annotations
 
 
 def _get_keypoints(points, keypoints, num_keypoints):

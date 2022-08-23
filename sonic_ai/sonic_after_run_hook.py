@@ -5,4 +5,5 @@ from mmcv.runner.hooks import HOOKS, Hook
 class SonicAfterRunHook(Hook):
 
     def after_run(self, runner):
-        runner.after_run()  # 给训练结束后提供一个接口
+        pass
+        # runner.after_run()  # 给训练结束后提供一个接口

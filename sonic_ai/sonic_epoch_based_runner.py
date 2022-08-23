@@ -15,7 +15,7 @@ class SonicEpochBasedRunner(EpochBasedRunner):
 
     def __init__(
             self,
-            save_pipeline,  # 保存模型的pipeline
+            # save_pipeline,  # 保存模型的pipeline
             after_run_pipeline=None,  # 训练结束后的pipeline
             save_model_path=None,  # 保存模型的路径
             timestamp=None,  # 时间戳，将会成为生成的文件名，跟dataset的timestamp保持同步
@@ -28,7 +28,7 @@ class SonicEpochBasedRunner(EpochBasedRunner):
             self.timestamp2 = timestamp
         else:
             self.timestamp2 = time.strftime('%Y%m%d_%H%M%S', time.localtime())
-        self.save_pipeline_compose = Compose(save_pipeline)
+        # self.save_pipeline_compose = Compose(save_pipeline)
         self.after_run_compose = Compose(after_run_pipeline)
 
     def save_checkpoint(

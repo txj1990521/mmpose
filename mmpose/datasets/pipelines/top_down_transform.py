@@ -37,9 +37,9 @@ class TopDownGetBboxCenterScale:
     def __call__(self, results):
 
         if 'center' in results and 'scale' in results:
-            warnings.warn(
-                'Use the "center" and "scale" that already exist in the data '
-                'sample. The padding will still be applied.')
+            # warnings.warn(
+            #     'Use the "center" and "scale" that already exist in the data '
+            #     'sample. The padding will still be applied.')
             results['scale'] *= self.padding
         else:
             bbox = results['bbox']

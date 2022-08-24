@@ -21,8 +21,8 @@ save_pipeline = [
         save_each_epoch=True,
         encrypt_each_epoch=False,
         save_latest=True,
-        encrypt_latest=False),
-    dict(type='SaveLatestModel', encrypt=False),
+        encrypt_latest=True),
+    dict(type='SaveLatestModel', encrypt=True),
 ]
 
 after_run_pipeline = [
@@ -33,7 +33,7 @@ after_run_pipeline = [
 
 runner = dict(
     type='SonicEpochBasedRunner',
-    # save_pipeline=save_pipeline,
+    save_pipeline=save_pipeline,
     after_run_pipeline=after_run_pipeline,
     max_epochs=12,
 )

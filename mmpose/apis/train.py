@@ -7,7 +7,7 @@ import torch
 import torch.distributed as dist
 from mmcv.parallel import MMDataParallel, MMDistributedDataParallel
 from mmcv.runner import (DistSamplerSeedHook, EpochBasedRunner, OptimizerHook,
-                         get_dist_info)
+                         get_dist_info, build_runner)
 from mmcv.utils import digit_version
 
 from mmpose.core import DistEvalHook, EvalHook, build_optimizers
@@ -144,12 +144,15 @@ def train_model(model,
     # build runner
     optimizer = build_optimizers(model, cfg.optimizer)
 
-    runner = EpochBasedRunner(
-        model,
-        optimizer=optimizer,
-        work_dir=cfg.work_dir,
-        logger=logger,
-        meta=meta)
+
+    runner = build_runner(
+        cfg.runner,
+        default_args=dict(
+            model=model,
+            optimizer=optimizer,
+            work_dir=cfg.work_dir,
+            logger=logger,
+            meta=meta))
     # an ugly workaround to make .log and .log.json filenames the same
     runner.timestamp = timestamp
 

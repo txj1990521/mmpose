@@ -7,7 +7,8 @@ custom_imports = dict(
              'sonic_ai.pipelines.eval_pipeline',
              'sonic_ai.pipelines.save_pipeline',
              'sonic_ai.pipelines.after_run_pipeline',
-             'sonic_ai.sonic_after_run_hook'], allow_failed_imports=True)
+             'sonic_ai.sonic_after_run_hook',
+             'sonic_ai.pipelines.dataset_pipeline'], allow_failed_imports=True)
 dataset_type = 'SonicKeyPointDataset'
 img_scale = (640, 640)
 Setdataset_channel = [
@@ -93,11 +94,11 @@ val_pipeline = [
 ]
 test_pipeline = val_pipeline
 eval_pipeline = [
-    dict(
-        type='CocoEvaluate', metric=['bbox'], classwise=True, iou_thrs=[0, 0]),
-    dict(type='ShowScores'),
-    dict(type='CreateConfusionMatrix'),
-    dict(type='CopyErrorCases')
+    # dict(
+    #     type='CocoEvaluate', metric=['bbox'], classwise=True, iou_thrs=[0, 0]),
+    # dict(type='ShowScores'),
+    # dict(type='CreateConfusionMatrix'),
+    # dict(type='CopyErrorCases')
 ]
 
 # 准备数据

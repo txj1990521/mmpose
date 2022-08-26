@@ -26,7 +26,7 @@ dist_params = dict(backend='nccl')
 workflow = [('train', 1)]
 
 checkpoint_config = dict(interval=4)
-evaluation = dict(interval=100, metric='mAP', save_best='AP')
+evaluation = dict(interval=1, metric='mAP', save_best='AP')
 optimizer = dict(
     type='Adam',
     lr=5e-4,
@@ -39,7 +39,7 @@ lr_config = dict(
     warmup_iters=500,
     warmup_ratio=0.001,
     step=[170, 200])
-total_epochs = 200
+
 log_config = dict(
     interval=50,
     hooks=[
@@ -139,9 +139,9 @@ val_pipeline = [
 test_pipeline = val_pipeline
 
 data = dict(
-    persistent_workers=True,
+    persistent_workers=False,
     samples_per_gpu=4,
-    workers_per_gpu=4,
+    workers_per_gpu=0,
     val_dataloader=dict(samples_per_gpu=32),
     test_dataloader=dict(samples_per_gpu=32),
     train=dict(

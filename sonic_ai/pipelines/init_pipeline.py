@@ -24,6 +24,9 @@ from sonic_ai.Labelme2coco_keypoints import Labelme2cocoKypoints
 from sonic_ai.pipelines.utils_labelme import copy_json_and_img, shape_to_points, _annotation
 
 
+# !/usr/bin/env Python
+# coding=utf-8
+
 @PIPELINES.register_module()
 class Labelme2coco_keypoints:
     def __call__(self, results, *args, **kwargs):
@@ -38,8 +41,6 @@ class Labelme2coco_keypoints:
 
         annotations = []
         images = []
-
-
 
         obj_count = 0
         if (dist.is_initialized()
@@ -57,9 +58,14 @@ class Labelme2coco_keypoints:
                         id=idx, file_name=filename, height=height,
                         width=width))
                 bboxes_list, keypoints_list = [], []
+                keypoints_x = []
+                keypoints_y = []
+                boxinfo = dict(mark='', label='bbox', points=[], group_id=None, shape_type='rectangle', flags={})
                 for shape in data['shapes']:
                     if shape['shape_type'] == 'point':
                         keypoints_list.append(shape)
+                        keypoints_x.append(shape['points'][0][0])
+                        keypoints_y.append(shape['points'][0][1])
                     elif shape['shape_type'] == 'rectangle':  # bboxs
                         bboxes_list.append(shape)
 
@@ -81,7 +87,10 @@ class Labelme2coco_keypoints:
                         continue
                     category_id = category_list.index(
                         category_map[shape['label']])
-
+                if bboxes_list == []:
+                    box = [[min(keypoints_x), min(keypoints_y)], [max(keypoints_x) + 5, max(keypoints_y) + 5]]
+                    boxinfo['points'] = box
+                    bboxes_list.append(boxinfo)
                 _annotation(annotations, bboxes_list, keypoints_list, data['json_path'], 1, len(keypoints_list),
                             category_id, idx)
                 obj_count += 1

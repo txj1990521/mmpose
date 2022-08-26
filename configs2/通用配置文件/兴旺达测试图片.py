@@ -9,15 +9,15 @@ from mmpose.apis import (inference_top_down_pose_model, init_pose_model,
                          vis_pose_result)
 from mmpose.datasets import DatasetInfo
 
-project_name = 'CYS.210803-分条机CCD-惠州赣锋-关键点测试'
+project_name = 'CYS.220317-雅康-欣旺达切叠一体机-定位/实验2-关键点'
 dataset_path = f'/data2/5-标注数据/{project_name}'
 file_root = dataset_path  # 当前文件夹下的所有图片
-Run_config = "configs2/CYS.210803-分条机CCD-惠州赣锋-关键点测试/赣锋配置文件.py"
-Pose_checkpoint = '/data/14-调试数据/txj/CYS.210803-分条机CCD-惠州赣锋-关键点测试/CYS.210803-分条机CCD-惠州赣锋-关键点测试/20220826_111455.pth'
+Run_config = "configs2/通用配置文件/定位配置文件.py"
+Pose_checkpoint = '/data/14-调试数据/txj/CYS.220317-雅康-欣旺达切叠一体机/CYS.220317-雅康-欣旺达切叠一体机-定位/实验2-关键点/20220826_110526.pth'
 
 Result_path = 'InferResult/' + project_name
 # bbox = [457.5, 0, 10, 613]
-bbox = [457.5, 0, 12, 600]
+bbox = [0, 0, 1024, 1024]
 
 
 def main():

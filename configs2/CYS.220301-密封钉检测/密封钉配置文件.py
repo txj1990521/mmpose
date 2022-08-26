@@ -7,13 +7,12 @@ from configs2.base.base_sonic_dataset import Setinference_channel
 _base_ = ['../base/default_runtime.py',
           '../base/schedule_sonic.py',
           '../base/base_sonic_dataset.py',
-          './骨骼点配置.py']
+          './密封钉骨骼点配置.py']
 
 # 服务器路径
-project_name = 'CYS.220317-雅康-欣旺达切叠一体机-定位/实验2-关键点'
+project_name = 'CYS.220652-温州瑞浦顶盖焊检测/02-关键点/A2'
 dataset_path = f'/data2/5-标注数据/{project_name}'
 label_path = os.path.dirname(os.path.realpath(f'{dataset_path}')) + '/label.ini'
-
 dataset_path_list = [f'{dataset_path}']
 num_classes = len(
     LoadCategoryList()(results={'label_path': label_path})['point_list'])
@@ -22,11 +21,11 @@ Setdataset_channel = [
     current_channel,
 ]
 Setinference_channel = current_channel
-save_model_path = '/data/14-调试数据/txj/CYS.220317-雅康-欣旺达切叠一体机'
+save_model_path = '/data/14-调试数据/txj/CYS.220301-密封钉检测/02-关键点'
 badcase_path = save_model_path
 timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
-total_epochs = 20
-checkpoint_config = dict(interval=4)
+total_epochs = 200
+checkpoint_config = dict(interval=10)
 evaluation = dict(interval=1, metric='mAP', save_best='AP')
 
 channel_cfg = dict(
@@ -71,7 +70,8 @@ data_cfg = dict(
 )
 
 train_pipeline = [
-    dict(type='LoadImageFromFile'),
+    dict(type='LoadImageFromFile', color_type='unchanged'),
+    dict(type='CopyChannel', target_channel=3, overwrite_shape=True, add_noise=False),
     dict(type='TopDownGetBboxCenterScale',
          padding=1.25),  # 将 bbox 从 [x, y, w, h] 转换为中心和缩放
     dict(type='TopDownRandomShiftBboxCenter', shift_factor=0.16,
@@ -135,9 +135,9 @@ train_init_pipeline = [
 ]
 
 data = dict(
-    persistent_workers=False,
+    persistent_workers=True,
     samples_per_gpu=4,
-    workers_per_gpu=0,
+    workers_per_gpu=4,
     val_dataloader=dict(samples_per_gpu=32),
     test_dataloader=dict(samples_per_gpu=32),
     train=dict(
@@ -181,4 +181,4 @@ lr_config = dict(
     warmup='linear',
     warmup_iters=500,
     warmup_ratio=0.001,
-    step=[4, 5])
+    step=[170, 200])

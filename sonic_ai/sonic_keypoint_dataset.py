@@ -4,8 +4,12 @@ import time
 import traceback
 import os.path as osp
 import warnings
+from collections import defaultdict, OrderedDict
+
 from mmcv import Config
 import numpy as np
+
+from mmpose.core import soft_oks_nms, oks_nms
 from mmpose.datasets.datasets.top_down.topdown_coco_dataset import TopDownCocoDataset
 from mmpose.datasets.builder import DATASETS
 from mmdet.datasets.pipelines.compose import Compose
@@ -168,6 +172,125 @@ class SonicKeyPointDataset(TopDownCocoDataset):
             bbox_id = bbox_id + 1
 
         return rec
+
+    def evaluate(self, results, res_folder=None, metric='mAP', **kwargs):
+        """Evaluate coco keypoint results. The pose prediction results will be
+        saved in ``${res_folder}/result_keypoints.json``.
+
+        Note:
+            - batch_size: N
+            - num_keypoints: K
+            - heatmap height: H
+            - heatmap width: W
+
+        Args:
+            results (list[dict]): Testing results containing the following
+                items:
+
+                - preds (np.ndarray[N,K,3]): The first two dimensions are \
+                    coordinates, score is the third dimension of the array.
+                - boxes (np.ndarray[N,6]): [center[0], center[1], scale[0], \
+                    scale[1],area, score]
+                - image_paths (list[str]): For example, ['data/coco/val2017\
+                    /000000393226.jpg']
+                - heatmap (np.ndarray[N, K, H, W]): model output heatmap
+                - bbox_id (list(int)).
+            res_folder (str, optional): The folder to save the testing
+                results. If not specified, a temp folder will be created.
+                Default: None.
+            metric (str | list[str]): Metric to be performed. Defaults: 'mAP'.
+
+        Returns:
+            dict: Evaluation results for evaluation metric.
+        """
+        metrics = metric if isinstance(metric, list) else [metric]
+        allowed_metrics = ['mAP']
+        for metric in metrics:
+            if metric not in allowed_metrics:
+                raise KeyError(f'metric {metric} is not supported')
+
+        if res_folder is not None:
+            tmp_folder = None
+            res_file = osp.join(res_folder, 'result_keypoints.json')
+        else:
+            tmp_folder = tempfile.TemporaryDirectory()
+            res_file = osp.join(tmp_folder.name, 'result_keypoints.json')
+
+        kpts = defaultdict(list)
+
+        for result in results:
+            preds = result['preds']
+            boxes = result['boxes']
+            image_paths = result['image_paths']
+            bbox_ids = result['bbox_ids']
+
+            batch_size = len(image_paths)
+            for i in range(batch_size):
+                if isinstance(self.img_prefix, str):
+                    image_id = self.name2id[image_paths[i][len(self.img_prefix):]]
+                else:
+                    image_id = self.name2id[image_paths[i].split('/')[-1]]
+                kpts[image_id].append({
+                    'keypoints': preds[i],
+                    'center': boxes[i][0:2],
+                    'scale': boxes[i][2:4],
+                    'area': boxes[i][4],
+                    'score': boxes[i][5],
+                    'image_id': image_id,
+                    'bbox_id': bbox_ids[i]
+                })
+        kpts = self._sort_and_unique_bboxes(kpts)
+
+        # rescoring and oks nms
+        num_joints = self.ann_info['num_joints']
+        vis_thr = self.vis_thr
+        oks_thr = self.oks_thr
+        valid_kpts = []
+        for image_id in kpts.keys():
+            img_kpts = kpts[image_id]
+            for n_p in img_kpts:
+                box_score = n_p['score']
+                if kwargs.get('rle_score', False):
+                    pose_score = n_p['keypoints'][:, 2]
+                    n_p['score'] = float(box_score + np.mean(pose_score) +
+                                         np.max(pose_score))
+                else:
+                    kpt_score = 0
+                    valid_num = 0
+                    for n_jt in range(0, num_joints):
+                        t_s = n_p['keypoints'][n_jt][2]
+                        if t_s > vis_thr:
+                            kpt_score = kpt_score + t_s
+                            valid_num = valid_num + 1
+                    if valid_num != 0:
+                        kpt_score = kpt_score / valid_num
+                    # rescoring
+                    n_p['score'] = kpt_score * box_score
+
+            if self.use_nms:
+                nms = soft_oks_nms if self.soft_nms else oks_nms
+                keep = nms(img_kpts, oks_thr, sigmas=self.sigmas)
+                valid_kpts.append([img_kpts[_keep] for _keep in keep])
+            else:
+                valid_kpts.append(img_kpts)
+
+        self._write_coco_keypoint_results(valid_kpts, res_file)
+
+        # do evaluation only if the ground truth keypoint annotations exist仅当存在基本事实关键点注释时才进行评估
+        if 'annotations' in self.coco.dataset:
+            info_str = self._do_python_keypoint_eval(res_file)
+            name_value = OrderedDict(info_str)
+
+            if tmp_folder is not None:
+                tmp_folder.cleanup()
+        else:
+            warnings.warn(f'Due to the absence of ground truth keypoint'
+                          f'annotations, the quantitative evaluation can not'
+                          f'be conducted. The prediction results have been'
+                          f'saved at: {osp.abspath(res_file)}')
+            name_value = {}
+
+        return name_value
 
     def _get_db(self):
         """Load dataset."""

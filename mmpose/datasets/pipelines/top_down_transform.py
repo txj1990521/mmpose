@@ -2,6 +2,7 @@
 import warnings
 
 import cv2
+
 import numpy as np
 
 from mmpose.core.bbox import bbox_xywh2cs
@@ -9,6 +10,7 @@ from mmpose.core.post_processing import (affine_transform, fliplr_joints,
                                          get_affine_transform, get_warp_matrix,
                                          warp_affine_joints)
 from mmpose.datasets.builder import PIPELINES
+import matplotlib
 
 
 @PIPELINES.register_module()
@@ -79,7 +81,6 @@ class TopDownRandomShiftBboxCenter:
         self.prob = prob
 
     def __call__(self, results):
-
         center = results['center']
         scale = results['scale']
         if np.random.rand() < self.prob:
@@ -326,7 +327,7 @@ class TopDownAffine:
             for i in range(results['ann_info']['num_joints']):
                 if joints_3d_visible[i, 0] > 0.0:
                     joints_3d[i,
-                              0:2] = affine_transform(joints_3d[i, 0:2], trans)
+                    0:2] = affine_transform(joints_3d[i, 0:2], trans)
 
         results['img'] = img
         results['joints_3d'] = joints_3d
@@ -378,7 +379,7 @@ class TopDownGenerateTarget:
         self.target_type = target_type
         self.encoding = encoding
 
-    def _msra_generate_target(self, cfg, joints_3d, joints_3d_visible, sigma):
+    def _msra_generate_target(self, imageFile, cfg, joints_3d, joints_3d_visible, sigma):
         """Generate the target heatmap via "MSRA" approach.
 
         Args:
@@ -397,7 +398,7 @@ class TopDownGenerateTarget:
         W, H = cfg['heatmap_size']
         joint_weights = cfg['joint_weights']
         use_different_joint_weights = cfg['use_different_joint_weights']
-
+        filename = imageFile.split('/')[-1].replace('.png', '')
         target_weight = np.zeros((num_joints, 1), dtype=np.float32)
         target = np.zeros((num_joints, H, W), dtype=np.float32)
 
@@ -425,9 +426,9 @@ class TopDownGenerateTarget:
                 y = y[:, None]
 
                 if target_weight[joint_id] > 0.5:
-                    target[joint_id] = np.exp(-((x - mu_x)**2 +
-                                                (y - mu_y)**2) /
-                                              (2 * sigma**2))
+                    target[joint_id] = np.exp(-((x - mu_x) ** 2 +
+                                                (y - mu_y) ** 2) /
+                                              (2 * sigma ** 2))
         else:
             for joint_id in range(num_joints):
                 target_weight[joint_id] = joints_3d_visible[joint_id, 0]
@@ -448,7 +449,7 @@ class TopDownGenerateTarget:
                     x0 = y0 = size // 2
                     # The gaussian is not normalized,
                     # we want the center value to equal 1
-                    g = np.exp(-((x - x0)**2 + (y - y0)**2) / (2 * sigma**2))
+                    g = np.exp(-((x - x0) ** 2 + (y - y0) ** 2) / (2 * sigma ** 2))
 
                     # Usable gaussian range
                     g_x = max(0, -ul[0]), min(br[0], W) - ul[0]
@@ -459,7 +460,7 @@ class TopDownGenerateTarget:
 
                     target[joint_id][img_y[0]:img_y[1], img_x[0]:img_x[1]] = \
                         g[g_y[0]:g_y[1], g_x[0]:g_x[1]]
-
+                matplotlib.image.imsave('tmp/' + filename + str(joint_id) + '_.png', target[joint_id])
         if use_different_joint_weights:
             target_weight = np.multiply(target_weight, joint_weights)
 
@@ -580,7 +581,7 @@ class TopDownGenerateTarget:
                 x0 = y0 = size // 2
                 x0 += mu_x_ac - mu_x
                 y0 += mu_y_ac - mu_y
-                g = np.exp(-((x - x0)**2 + (y - y0)**2) / (2 * factor**2))
+                g = np.exp(-((x - x0) ** 2 + (y - y0) ** 2) / (2 * factor ** 2))
 
                 # Usable gaussian range
                 g_x = max(0, -ul[0]), min(br[0], heatmap_size[0]) - ul[0]
@@ -614,7 +615,7 @@ class TopDownGenerateTarget:
                 mu_y = joints_3d[joint_id][1] / feat_stride[1]
                 x_offset = (mu_x - feat_x_int) / valid_radius
                 y_offset = (mu_y - feat_y_int) / valid_radius
-                dis = x_offset**2 + y_offset**2
+                dis = x_offset ** 2 + y_offset ** 2
                 keep_pos = np.where(dis <= 1)[0]
                 v = target_weight[joint_id]
                 if v > 0.5:
@@ -657,9 +658,9 @@ class TopDownGenerateTarget:
                     target_weight = np.concatenate(
                         [target_weight, target_weight_i[None]], axis=0)
             else:
-                target, target_weight = self._msra_generate_target(
-                    results['ann_info'], joints_3d, joints_3d_visible,
-                    self.sigma)
+                target, target_weight = self._msra_generate_target(results['image_file'],
+                                                                   results['ann_info'], joints_3d, joints_3d_visible,
+                                                                   self.sigma)
 
         elif self.encoding == 'Megvii':
             if isinstance(self.kernel, list):
@@ -748,8 +749,8 @@ class TopDownGenerateTargetRegression:
         use_different_joint_weights = cfg['use_different_joint_weights']
 
         mask = (joints_3d[:, 0] >= 0) * (
-            joints_3d[:, 0] <= image_size[0] - 1) * (joints_3d[:, 1] >= 0) * (
-                joints_3d[:, 1] <= image_size[1] - 1)
+                joints_3d[:, 0] <= image_size[0] - 1) * (joints_3d[:, 1] >= 0) * (
+                       joints_3d[:, 1] <= image_size[1] - 1)
 
         target = joints_3d[:, :2] / image_size
 

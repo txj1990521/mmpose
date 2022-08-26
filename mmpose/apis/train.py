@@ -143,8 +143,12 @@ def train_model(model,
 
     # build runner
     optimizer = build_optimizers(model, cfg.optimizer)
-
-
+    # runner = EpochBasedRunner(
+    #     model,
+    #     optimizer=optimizer,
+    #     work_dir=cfg.work_dir,
+    #     logger=logger,
+    #     meta=meta)
     runner = build_runner(
         cfg.runner,
         default_args=dict(

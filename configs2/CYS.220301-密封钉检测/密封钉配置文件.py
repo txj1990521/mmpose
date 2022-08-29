@@ -129,15 +129,15 @@ train_init_pipeline = [
     dict(type='LoadLabelmeDataset'),
     dict(type='StatCategoryCounter'),
     dict(type='CopyData', times=1),
-    dict(type='Labelme2coco_keypoints'),
+    dict(type='Labelme2COCOKeypoints', bbox_full_image=True),
     dict(type='CopyErrorPath', copy_error_file_path='/data/14-调试数据/txj'),
     dict(type='SaveJson'),
 ]
 
 data = dict(
-    persistent_workers=True,
+    persistent_workers=False,
     samples_per_gpu=4,
-    workers_per_gpu=4,
+    workers_per_gpu=0,
     val_dataloader=dict(samples_per_gpu=32),
     test_dataloader=dict(samples_per_gpu=32),
     train=dict(

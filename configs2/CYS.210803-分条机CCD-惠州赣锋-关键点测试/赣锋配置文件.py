@@ -130,7 +130,7 @@ train_init_pipeline = [
     dict(type='LoadLabelmeDataset'),
     dict(type='StatCategoryCounter'),
     dict(type='CopyData', times=1),
-    dict(type='Labelme2cocoKeypoints'),
+    dict(type='Labelme2COCOKeypoints'),
     dict(type='CopyErrorPath', copy_error_file_path='/data/14-调试数据/txj'),
     dict(type='SaveJson'),
 ]

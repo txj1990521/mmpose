@@ -1,4 +1,4 @@
-from sonic_ai.Labelme2cocoKeypoints import labelme2coco_process
+from sonic_ai.labelme2coco_keypoints import Labelme2cocoKypoints
 
 className = 'c'
 projectName = 'CYS.220317-雅康-欣旺达切叠一体机'

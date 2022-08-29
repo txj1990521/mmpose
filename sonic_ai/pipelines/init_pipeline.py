@@ -28,7 +28,7 @@ from sonic_ai.pipelines.utils_labelme import copy_json_and_img, shape_to_points,
 # coding=utf-8
 
 @PIPELINES.register_module()
-class Labelme2coco_keypoints:
+class Labelme2COCOKeypoints:
     def __call__(self, results, *args, **kwargs):
         category_list = results['category_list']
         category_map = results['category_map']

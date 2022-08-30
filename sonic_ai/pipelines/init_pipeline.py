@@ -43,7 +43,7 @@ class Labelme2COCOKeypoints:
 
         obj_count = 0
         if (dist.is_initialized()
-                and dist.get_rank() == 0) or not dist.is_initialized():
+            and dist.get_rank() == 0) or not dist.is_initialized():
             disable = False
         else:
             disable = True
@@ -69,9 +69,10 @@ class Labelme2COCOKeypoints:
                     flags={})
                 for shape in data['shapes']:
                     if shape['shape_type'] == 'point':
+                        shape['points'][0][0] = width // 2
                         keypoints_list.append(shape)
-                        keypoints_x.append(shape['points'][0][0])
-                        keypoints_y.append(shape['points'][0][1])
+                        # keypoints_x.append(shape['points'][0][0])
+                        # keypoints_y.append(shape['points'][0][1])
                     elif shape['shape_type'] == 'rectangle':  # bboxs
                         bboxes_list.append(shape)
 
@@ -94,13 +95,11 @@ class Labelme2COCOKeypoints:
                     category_id = category_list.index(
                         category_map[shape['label']])
                 if bboxes_list == []:
-                    box = [
-                        [min(keypoints_x), min(keypoints_y)],
-                        [max(keypoints_x) + 5,
-                         max(keypoints_y) + 5]
-                    ]
-                    boxinfo['points'] = box
-                    bboxes_list.append(boxinfo)
+                    d = 1
+                    bbox = [[width // 2 - d, int(height * 0.1)], [width // 2 + d, int(height * 0.9)]]
+                    boxinfo['points'] = bbox
+                    bboxes_list = [boxinfo]
+
                 if self.bbox_full_image:
                     bbox = [[0, 0], [width, height]]
                     boxinfo['points'] = bbox
@@ -141,7 +140,7 @@ class LoadCategoryList:
         label_path = results['label_path']
         if results.get('ignore_labels', False):
             ignore_labels = results['ignore_labels'] if results[
-                'ignore_labels'] is not None else self.ignore_labels
+                                                            'ignore_labels'] is not None else self.ignore_labels
         else:
             ignore_labels = self.ignore_labels
         results['ignore_labels'] = ignore_labels
@@ -299,8 +298,8 @@ class LoadLabelmeDataset:
             x for x in json_data_list
             if all(y['label'] in category_map
                    for y in x['shapes']) and not all(
-                       category_map[y['label']] in ignore_labels
-                       for y in x['shapes'])
+                category_map[y['label']] in ignore_labels
+                for y in x['shapes'])
         ]
         logger.info(f'筛选后的样本数量：{len(new_data_list)}')
         logger.info(f'路径样例：{new_data_list[0]["imagePath"]}')
@@ -356,7 +355,7 @@ class SplitData:
     def __call__(self, results):
         if results.get('start', False):
             start = results['start'] if results[
-                'start'] is not None else self.start
+                                            'start'] is not None else self.start
         else:
             start = self.start
         if results.get('end', False):
@@ -391,7 +390,7 @@ class CopyData:
     def __call__(self, results, *args, **kwargs):
         if results.get('times', False):
             times = results['times'] if results[
-                'times'] is not None else self.times
+                                            'times'] is not None else self.times
         else:
             times = self.times
         results[self.key] *= times
@@ -503,7 +502,7 @@ class CalculateMeanAndStd:
                         cv2.imdecode(
                             np.fromfile(
                                 json_data['imagePath'], dtype=np.uint8),
-                            cv2.IMREAD_UNCHANGED), self.img_scale + (3, ))
+                            cv2.IMREAD_UNCHANGED), self.img_scale + (3,))
                 ] for json_data in tqdm(json_data_list)
             ]
 
@@ -665,7 +664,7 @@ class LoadXndMutilChannelImgPathList:
             for idx, image_path in enumerate(json_data['image_path_list']):
                 if not image_path.endswith(
                         'albedo.jpg') and not image_path.endswith(
-                            'normal.jpg'):
+                    'normal.jpg'):
                     new_image_path_list.append(image_path)
                     new_image_path_list = sorted(
                         new_image_path_list,

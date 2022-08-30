@@ -26,7 +26,7 @@ badcase_path = save_model_path
 timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
 total_epochs = 50
 checkpoint_config = dict(interval=10)
-evaluation = dict(interval=1000, metric='mAP', save_best='AP')
+evaluation = dict(interval=1, metric='mAP', save_best='AP')
 
 channel_cfg = dict(
     num_output_channels=num_classes,
@@ -135,6 +135,19 @@ train_init_pipeline = [
     dict(type='SaveJson'),
 ]
 
+test_init_pipeline = [
+    dict(type='CopyData2Local', target_dir='/data/公共数据缓存', run_rsync=True),
+    dict(type='LoadCategoryList', ignore_labels=['屏蔽']),
+    dict(type='LoadPathList'),
+    dict(type='SplitData', start=0, end=0.8, key='json_path_list'),
+    dict(type='LoadJsonDataList'),
+    dict(type='LoadLabelmeDataset'),
+    dict(type='StatCategoryCounter'),
+    dict(type='CopyData', times=1),
+    dict(type='Labelme2COCOKeypoints', bbox_full_image=True),
+    dict(type='CopyErrorPath', copy_error_file_path='/data/14-调试数据/txj'),
+    dict(type='SaveJson'),
+]
 data = dict(
     persistent_workers=False,
     samples_per_gpu=4,
@@ -151,19 +164,21 @@ data = dict(
 
     val=dict(
         label_path=label_path,
+        init_pipeline=test_init_pipeline,
         dataset_path_list=dataset_path_list,
         data_cfg=data_cfg,
         pipeline=val_pipeline,
         dataset_info={{_base_.dataset_info}},
-        timestamp=timestamp,),
+        timestamp=timestamp, ),
     test=dict(
         label_path=label_path,
+        init_pipeline=test_init_pipeline,
         dataset_path_list=dataset_path_list,
         data_cfg=data_cfg,
         pipeline=test_pipeline,
         dataset_info={{_base_.dataset_info}},
         timestamp=timestamp,
-))
+    ))
 log_config = dict(
     interval=10,
     hooks=[

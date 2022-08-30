@@ -271,8 +271,6 @@ def _inference_single_pose_model(model,
             return_heatmap=return_heatmap)
 
     return result['preds'], result['output_heatmap']
-
-
 @deprecated_api_warning(name_dict=dict(img_or_path='imgs_or_paths'))
 def inference_top_down_pose_model(model,
                                   imgs_or_paths,

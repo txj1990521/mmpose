@@ -9,15 +9,15 @@ from mmpose.apis import (inference_top_down_pose_model, init_pose_model,
                          vis_pose_result)
 from mmpose.datasets import DatasetInfo
 
-project_name = 'CYS.210803-分条机CCD-惠州赣锋-关键点测试'
+project_name = 'CYS.220652-温州瑞浦顶盖焊检测/02-关键点/A2'
 dataset_path = f'/data2/5-标注数据/{project_name}'
 file_root = dataset_path  # 当前文件夹下的所有图片
-Run_config = "configs2/CYS.210803-分条机CCD-惠州赣锋-关键点测试/赣锋配置文件.py"
-Pose_checkpoint = '/data/14-调试数据/txj/CYS.210803-分条机CCD-惠州赣锋-关键点测试/CYS.210803-分条机CCD-惠州赣锋-关键点测试/20220830_144057.pth'
+Run_config = "configs2/CYS.220301-密封钉检测/密封钉配置文件.py"
+Pose_checkpoint = '/data/14-调试数据/txj/CYS.220301-密封钉检测/02-关键点/CYS.220652-温州瑞浦顶盖焊检测/02-关键点/A2/20220830_100223.pth'
 
 Result_path = 'InferResult/' + project_name
-# bbox = [457.5, 0, 50, 613]
-# bbox = [0, 0, 915, 613]
+# bbox = [457.5, 0, 10, 613]
+bbox = [0, 0, 1024, 1024]
 
 
 def main():
@@ -72,7 +72,7 @@ def main():
         dataset_info = DatasetInfo(dataset_info)
 
     # optional
-    return_heatmap = True
+    return_heatmap = False
     # e.g. use ('backbone', ) to return backbone feature
     output_layer_names = None
     file_list = os.listdir(file_root)
@@ -85,19 +85,10 @@ def main():
         if 'json' not in file_list[i] and '@eaDir' not in file_list[i] and 'ini' not in file_list[i]:
             image_name_new = file_root + "/" + file_list[i]
             # print(image_name_new)
-            src = cv2.imread(image_name_new)
+            # src = cv2.imread(image_name_new)
             # h, w = src.shape[:-1]
             # make project bounding boxes产生检测框
-            h, w = src.shape[0:2]
-            # make project bounding boxes产生检测框
-            # myproject_results = [{'bbox': [0, 0, w, h]}]
-            d = 5
-            myproject_results = [
-                {
-                    'bbox': [w // 2 - d, int(h * 0.1), d * 2,
-                             int(h * 0.8)]
-                }
-            ]
+            myproject_results = [{'bbox': bbox}]
 
             # test a single image, with a list of bboxes
             pose_results, returned_outputs = inference_top_down_pose_model(

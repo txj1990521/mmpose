@@ -7,7 +7,7 @@ from configs2.base.base_sonic_dataset import Setinference_channel
 _base_ = ['../base/default_runtime.py',
           '../base/schedule_sonic.py',
           '../base/base_sonic_dataset.py',
-          './赣锋骨骼点配置.py']
+          './密封钉骨骼点配置.py']
 
 # 服务器路径
 project_name = 'CYS.210803-分条机CCD-惠州赣锋-关键点测试'
@@ -23,13 +23,12 @@ Setdataset_channel = [
 ]
 Setinference_channel = current_channel
 save_model_path = '/data/14-调试数据/txj/CYS.210803-分条机CCD-惠州赣锋-关键点测试'
-total_epochs = 200
-checkpoint_config = dict(interval=10)
-evaluation = dict(interval=10, metric='mAP', save_best='AP')
-
-
 badcase_path = save_model_path
 timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
+total_epochs = 50
+checkpoint_config = dict(interval=10)
+evaluation = dict(interval=1, metric='mAP', save_best='AP')
+
 channel_cfg = dict(
     num_output_channels=num_classes,
     dataset_joints=num_classes,
@@ -45,7 +44,7 @@ model = dict(
         type='TopdownHeatmapSimpleHead',
         in_channels=512,
         out_channels=channel_cfg['num_output_channels'],
-        loss_keypoint=dict(type='JointsMSELoss', use_target_weight=True)),
+        loss_keypoint=dict(type='JointsMSELoss', use_target_weight=False)),
     train_cfg=dict(),
     test_cfg=dict(
         flip_test=True,
@@ -54,8 +53,8 @@ model = dict(
         modulate_kernel=11))
 
 data_cfg = dict(
-    image_size=[512, 512],
-    heatmap_size=[128, 128],
+    image_size=[64, 512],
+    heatmap_size=[16, 128],
     # heatmap_size=[48, 64],
     num_output_channels=channel_cfg['num_output_channels'],
     num_joints=channel_cfg['dataset_joints'],
@@ -63,8 +62,8 @@ data_cfg = dict(
     inference_channel=channel_cfg['inference_channel'],
     soft_nms=False,
     nms_thr=1.0,
-    oks_thr=0.8,
-    vis_thr=0.1,
+    oks_thr=0.9,
+    vis_thr=0.2,
     use_gt_bbox=False,
     det_bbox_thr=0.0,
     bbox_file=None,
@@ -84,7 +83,7 @@ train_pipeline = [
     #     prob_half_body=0.3),
     # dict(
     #     type='TopDownGetRandomScaleRotation', rot_factor=40, scale_factor=0.5),
-    # 随机缩放和旋转的数据增强，rot_factor旋转的角度，scale_factor缩放的数据增强系数
+    # # 随机缩放和旋转的数据增强，rot_factor旋转的角度，scale_factor缩放的数据增强系数
     dict(type='TopDownAffine'),  # 仿射变换图像进行输入
     dict(type='ToTensor'),  # 将图像转换为pytorch的变量tensor
     dict(
@@ -130,15 +129,28 @@ train_init_pipeline = [
     dict(type='LoadLabelmeDataset'),
     dict(type='StatCategoryCounter'),
     dict(type='CopyData', times=1),
-    dict(type='Labelme2COCOKeypoints'),
+    dict(type='Labelme2COCOKeypoints', bbox_full_image=False),
     dict(type='CopyErrorPath', copy_error_file_path='/data/14-调试数据/txj'),
     dict(type='SaveJson'),
 ]
 
+test_init_pipeline = [
+    dict(type='CopyData2Local', target_dir='/data/公共数据缓存', run_rsync=True),
+    dict(type='LoadCategoryList', ignore_labels=['屏蔽']),
+    dict(type='LoadPathList'),
+    dict(type='SplitData', start=0, end=0.8, key='json_path_list'),
+    dict(type='LoadJsonDataList'),
+    dict(type='LoadLabelmeDataset'),
+    dict(type='StatCategoryCounter'),
+    dict(type='CopyData', times=1),
+    dict(type='Labelme2COCOKeypoints', bbox_full_image=True),
+    dict(type='CopyErrorPath', copy_error_file_path='/data/14-调试数据/txj'),
+    dict(type='SaveJson'),
+]
 data = dict(
-    persistent_workers=False,
+    persistent_workers=True,
     samples_per_gpu=4,
-    workers_per_gpu=0,
+    workers_per_gpu=4,
     val_dataloader=dict(samples_per_gpu=32),
     test_dataloader=dict(samples_per_gpu=32),
     train=dict(
@@ -151,6 +163,7 @@ data = dict(
 
     val=dict(
         label_path=label_path,
+        init_pipeline=test_init_pipeline,
         dataset_path_list=dataset_path_list,
         data_cfg=data_cfg,
         pipeline=val_pipeline,
@@ -158,6 +171,7 @@ data = dict(
         timestamp=timestamp, ),
     test=dict(
         label_path=label_path,
+        init_pipeline=test_init_pipeline,
         dataset_path_list=dataset_path_list,
         data_cfg=data_cfg,
         pipeline=test_pipeline,
@@ -165,7 +179,7 @@ data = dict(
         timestamp=timestamp,
     ))
 log_config = dict(
-    interval=50,
+    interval=10,
     hooks=[
         dict(type='TextLoggerHook'),
         # dict(type='TensorboardLoggerHook')
@@ -180,6 +194,6 @@ LoadCategoryList = None
 lr_config = dict(
     policy='step',
     warmup='linear',
-    warmup_iters=500,
+    warmup_iters=50,
     warmup_ratio=0.001,
-    step=[170, 200])
+    step=[45, 48])

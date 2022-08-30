@@ -147,6 +147,7 @@ def main():
     timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
     log_file = osp.join(cfg.work_dir, f'{timestamp}.log')
     logger = get_root_logger(log_file=log_file, log_level=cfg.log_level)
+    logger.info(cfg.pretty_text)
 
     # init the meta dict to record some important information such as
     # environment info and seed, which will be logged

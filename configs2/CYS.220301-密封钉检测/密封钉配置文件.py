@@ -26,7 +26,7 @@ badcase_path = save_model_path
 timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
 total_epochs = 200
 checkpoint_config = dict(interval=10)
-evaluation = dict(interval=1, metric='mAP', save_best='AP')
+evaluation = dict(interval=1000, metric='mAP', save_best='AP')
 
 channel_cfg = dict(
     num_output_channels=num_classes,
@@ -82,7 +82,7 @@ train_pipeline = [
         num_joints_half_body=8,
         prob_half_body=0.3),
     dict(
-        type='TopDownGetRandomScaleRotation', rot_factor=40, scale_factor=0.5),
+        type='TopDownGetRandomScaleRotation', rot_factor=10, scale_factor=0.5),
     # 随机缩放和旋转的数据增强，rot_factor旋转的角度，scale_factor缩放的数据增强系数
     dict(type='TopDownAffine'),  # 仿射变换图像进行输入
     dict(type='ToTensor'),  # 将图像转换为pytorch的变量tensor
@@ -101,7 +101,8 @@ train_pipeline = [
 ]
 
 val_pipeline = [
-    dict(type='LoadImageFromFile'),
+    dict(type='LoadImageFromFile', color_type='unchanged'),
+    dict(type='CopyChannel', target_channel=3, overwrite_shape=True, add_noise=False),
     dict(type='TopDownGetBboxCenterScale', padding=1.25),  # 将 bbox 从 [x, y, w, h] 转换为中心和缩放
     dict(type='TopDownAffine'),  # 仿射变换图像进行输入
     dict(type='ToTensor'),  # 将图像转换为pytorch的变量tensor
@@ -164,7 +165,7 @@ data = dict(
         timestamp=timestamp,
 ))
 log_config = dict(
-    interval=50,
+    interval=10,
     hooks=[
         dict(type='TextLoggerHook'),
         # dict(type='TensorboardLoggerHook')

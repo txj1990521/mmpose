@@ -9,7 +9,7 @@ import traceback
 from collections import Counter
 from glob import glob
 from pathlib import Path
-import json
+
 import cv2
 import mmcv
 import numpy as np
@@ -17,18 +17,17 @@ import torch.distributed
 from mmcv.runner.dist_utils import master_only
 from torch import distributed as dist
 from tqdm import tqdm
-from sklearn.model_selection import train_test_split
 from mmdet.datasets.builder import PIPELINES
 from mmdet.utils import get_root_logger
-from sonic_ai.Labelme2coco_keypoints import Labelme2cocoKypoints
 from sonic_ai.pipelines.utils_labelme import copy_json_and_img, shape_to_points, _annotation
 
 
-# !/usr/bin/env Python
-# coding=utf-8
-
 @PIPELINES.register_module()
 class Labelme2COCOKeypoints:
+
+    def __init__(self, bbox_full_image=False, *args, **kwargs):
+        self.bbox_full_image = bbox_full_image
+
     def __call__(self, results, *args, **kwargs):
         category_list = results['category_list']
         category_map = results['category_map']
@@ -44,11 +43,12 @@ class Labelme2COCOKeypoints:
 
         obj_count = 0
         if (dist.is_initialized()
-            and dist.get_rank() == 0) or not dist.is_initialized():
+                and dist.get_rank() == 0) or not dist.is_initialized():
             disable = False
         else:
             disable = True
-        with tqdm(json_data_list, desc='Labelme2coco_keypoints', disable=disable) as pbar:
+        with tqdm(json_data_list, desc='Labelme2COCOKeypoints',
+                  disable=disable) as pbar:
             for idx, data in enumerate(pbar):
                 filename = os.path.basename(data['imagePath'])
 
@@ -60,7 +60,13 @@ class Labelme2COCOKeypoints:
                 bboxes_list, keypoints_list = [], []
                 keypoints_x = []
                 keypoints_y = []
-                boxinfo = dict(mark='', label='bbox', points=[], group_id=None, shape_type='rectangle', flags={})
+                boxinfo = dict(
+                    mark='',
+                    label='bbox',
+                    points=[],
+                    group_id=None,
+                    shape_type='rectangle',
+                    flags={})
                 for shape in data['shapes']:
                     if shape['shape_type'] == 'point':
                         keypoints_list.append(shape)
@@ -88,11 +94,22 @@ class Labelme2COCOKeypoints:
                     category_id = category_list.index(
                         category_map[shape['label']])
                 if bboxes_list == []:
-                    box = [[min(keypoints_x), min(keypoints_y)], [max(keypoints_x) + 5, max(keypoints_y) + 5]]
+                    box = [
+                        [min(keypoints_x), min(keypoints_y)],
+                        [max(keypoints_x) + 5,
+                         max(keypoints_y) + 5]
+                    ]
                     boxinfo['points'] = box
                     bboxes_list.append(boxinfo)
-                _annotation(annotations, bboxes_list, keypoints_list, data['json_path'], 1, len(keypoints_list),
-                            category_id, idx)
+                if self.bbox_full_image:
+                    bbox = [[0, 0], [width, height]]
+                    boxinfo['points'] = bbox
+                    bboxes_list = [boxinfo]
+
+                _annotation(
+                    annotations,
+                    bboxes_list, keypoints_list, data['json_path'], 1,
+                    len(keypoints_list), category_id, idx)
                 obj_count += 1
 
         categories = [
@@ -124,7 +141,7 @@ class LoadCategoryList:
         label_path = results['label_path']
         if results.get('ignore_labels', False):
             ignore_labels = results['ignore_labels'] if results[
-                                                            'ignore_labels'] is not None else self.ignore_labels
+                'ignore_labels'] is not None else self.ignore_labels
         else:
             ignore_labels = self.ignore_labels
         results['ignore_labels'] = ignore_labels
@@ -282,8 +299,8 @@ class LoadLabelmeDataset:
             x for x in json_data_list
             if all(y['label'] in category_map
                    for y in x['shapes']) and not all(
-                category_map[y['label']] in ignore_labels
-                for y in x['shapes'])
+                       category_map[y['label']] in ignore_labels
+                       for y in x['shapes'])
         ]
         logger.info(f'筛选后的样本数量：{len(new_data_list)}')
         logger.info(f'路径样例：{new_data_list[0]["imagePath"]}')
@@ -338,7 +355,8 @@ class SplitData:
 
     def __call__(self, results):
         if results.get('start', False):
-            start = results['start'] if results['start'] is not None else self.start
+            start = results['start'] if results[
+                'start'] is not None else self.start
         else:
             start = self.start
         if results.get('end', False):
@@ -373,7 +391,7 @@ class CopyData:
     def __call__(self, results, *args, **kwargs):
         if results.get('times', False):
             times = results['times'] if results[
-                                            'times'] is not None else self.times
+                'times'] is not None else self.times
         else:
             times = self.times
         results[self.key] *= times
@@ -485,7 +503,7 @@ class CalculateMeanAndStd:
                         cv2.imdecode(
                             np.fromfile(
                                 json_data['imagePath'], dtype=np.uint8),
-                            cv2.IMREAD_UNCHANGED), self.img_scale + (3,))
+                            cv2.IMREAD_UNCHANGED), self.img_scale + (3, ))
                 ] for json_data in tqdm(json_data_list)
             ]
 
@@ -647,7 +665,7 @@ class LoadXndMutilChannelImgPathList:
             for idx, image_path in enumerate(json_data['image_path_list']):
                 if not image_path.endswith(
                         'albedo.jpg') and not image_path.endswith(
-                    'normal.jpg'):
+                            'normal.jpg'):
                     new_image_path_list.append(image_path)
                     new_image_path_list = sorted(
                         new_image_path_list,

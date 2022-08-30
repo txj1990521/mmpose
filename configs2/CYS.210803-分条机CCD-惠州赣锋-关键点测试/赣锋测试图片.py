@@ -91,7 +91,7 @@ def main():
             h, w = src.shape[0:2]
             # make project bounding boxes产生检测框
             # myproject_results = [{'bbox': [0, 0, w, h]}]
-            d = 5
+            d = 10
             myproject_results = [
                 {
                     'bbox': [w // 2 - d, int(h * 0.1), d * 2,

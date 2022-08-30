@@ -5,6 +5,7 @@ import warnings
 from collections import defaultdict
 
 import mmcv
+import matplotlib
 import numpy as np
 import torch
 from mmcv.parallel import collate, scatter
@@ -223,19 +224,19 @@ def _inference_single_pose_model(model,
         # prepare data
         data = {
             'bbox':
-            bbox,
+                bbox,
             'bbox_score':
-            bbox[4] if len(bbox) == 5 else 1,
+                bbox[4] if len(bbox) == 5 else 1,
             'bbox_id':
-            0,  # need to be assigned if batch_size > 1
+                0,  # need to be assigned if batch_size > 1
             'dataset':
-            dataset_name,
+                dataset_name,
             'joints_3d':
-            np.zeros((cfg.data_cfg.num_joints, 3), dtype=np.float32),
+                np.zeros((cfg.data_cfg.num_joints, 3), dtype=np.float32),
             'joints_3d_visible':
-            np.zeros((cfg.data_cfg.num_joints, 3), dtype=np.float32),
+                np.zeros((cfg.data_cfg.num_joints, 3), dtype=np.float32),
             'rotation':
-            0,
+                0,
             'ann_info': {
                 'image_size': np.array(cfg.data_cfg['image_size']),
                 'num_joints': cfg.data_cfg['num_joints'],
@@ -269,8 +270,14 @@ def _inference_single_pose_model(model,
             img_metas=batch_data['img_metas'],
             return_loss=False,
             return_heatmap=return_heatmap)
-
+    matplotlib.image.imsave('InferMap/' + result['image_paths'][0].split('/')[-1].replace('.png', '') + '_0.png',
+                            result['output_heatmap'][0][0])
+    matplotlib.image.imsave('InferMap/' + result['image_paths'][0].split('/')[-1].replace('.png', '') + '_1.png',
+                            result['output_heatmap'][0][1])
+    matplotlib.image.imsave('tmp_01.png', result['output_heatmap'][0][1])
     return result['preds'], result['output_heatmap']
+
+
 @deprecated_api_warning(name_dict=dict(img_or_path='imgs_or_paths'))
 def inference_top_down_pose_model(model,
                                   imgs_or_paths,
@@ -516,7 +523,7 @@ def inference_bottom_up_pose_model(model,
 
         for idx, pred in enumerate(result['preds']):
             area = (np.max(pred[:, 0]) - np.min(pred[:, 0])) * (
-                np.max(pred[:, 1]) - np.min(pred[:, 1]))
+                    np.max(pred[:, 1]) - np.min(pred[:, 1]))
             pose_results.append({
                 'keypoints': pred[:, :3],
                 'score': result['scores'][idx],
@@ -619,14 +626,14 @@ def vis_pose_result(model,
                         [131, 132]]
 
             pose_link_color = palette[[
-                0, 0, 0, 0, 7, 7, 7, 9, 9, 9, 9, 9, 16, 16, 16, 16, 16, 16, 16
-            ] + [16, 16, 16, 16, 16, 16] + [
-                0, 0, 0, 0, 4, 4, 4, 4, 8, 8, 8, 8, 12, 12, 12, 12, 16, 16, 16,
-                16
-            ] + [
-                0, 0, 0, 0, 4, 4, 4, 4, 8, 8, 8, 8, 12, 12, 12, 12, 16, 16, 16,
-                16
-            ]]
+                                          0, 0, 0, 0, 7, 7, 7, 9, 9, 9, 9, 9, 16, 16, 16, 16, 16, 16, 16
+                                      ] + [16, 16, 16, 16, 16, 16] + [
+                                          0, 0, 0, 0, 4, 4, 4, 4, 8, 8, 8, 8, 12, 12, 12, 12, 16, 16, 16,
+                                          16
+                                      ] + [
+                                          0, 0, 0, 0, 4, 4, 4, 4, 8, 8, 8, 8, 12, 12, 12, 12, 16, 16, 16,
+                                          16
+                                      ]]
             pose_kpt_color = palette[
                 [16, 16, 16, 16, 16, 9, 9, 9, 9, 9, 9, 0, 0, 0, 0, 0, 0] +
                 [0, 0, 0, 0, 0, 0] + [19] * (68 + 42)]
@@ -800,12 +807,11 @@ def vis_pose_result(model,
 
 
 def inference_gesture_model(
-    model,
-    videos_or_paths,
-    bboxes=None,
-    dataset_info=None,
+        model,
+        videos_or_paths,
+        bboxes=None,
+        dataset_info=None,
 ):
-
     cfg = model.cfg
     device = next(model.parameters()).device
     if device.type == 'cpu':

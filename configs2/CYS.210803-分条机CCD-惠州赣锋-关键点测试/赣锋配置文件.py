@@ -148,9 +148,9 @@ test_init_pipeline = [
     dict(type='SaveJson'),
 ]
 data = dict(
-    persistent_workers=True,
+    persistent_workers=False,
     samples_per_gpu=4,
-    workers_per_gpu=4,
+    workers_per_gpu=0,
     val_dataloader=dict(samples_per_gpu=32),
     test_dataloader=dict(samples_per_gpu=32),
     train=dict(

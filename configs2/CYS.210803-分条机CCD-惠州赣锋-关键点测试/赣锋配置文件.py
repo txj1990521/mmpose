@@ -7,7 +7,7 @@ from configs2.base.base_sonic_dataset import Setinference_channel
 _base_ = ['../base/default_runtime.py',
           '../base/schedule_sonic.py',
           '../base/base_sonic_dataset.py',
-          './密封钉骨骼点配置.py']
+          './赣锋骨骼点配置.py']
 
 # 服务器路径
 project_name = 'CYS.210803-分条机CCD-惠州赣锋-关键点测试'
@@ -27,7 +27,7 @@ badcase_path = save_model_path
 timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
 total_epochs = 50
 checkpoint_config = dict(interval=10)
-evaluation = dict(interval=1, metric='mAP', save_best='AP')
+evaluation = dict(interval=1000, metric='mAP', save_best='AP')
 
 channel_cfg = dict(
     num_output_channels=num_classes,
@@ -143,7 +143,7 @@ test_init_pipeline = [
     dict(type='LoadLabelmeDataset'),
     dict(type='StatCategoryCounter'),
     dict(type='CopyData', times=1),
-    dict(type='Labelme2COCOKeypoints', bbox_full_image=True),
+    dict(type='Labelme2COCOKeypoints', bbox_full_image=False),
     dict(type='CopyErrorPath', copy_error_file_path='/data/14-调试数据/txj'),
     dict(type='SaveJson'),
 ]

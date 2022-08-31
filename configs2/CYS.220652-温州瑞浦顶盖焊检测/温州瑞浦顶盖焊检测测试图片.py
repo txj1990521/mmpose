@@ -9,15 +9,15 @@ from mmpose.apis import (inference_top_down_pose_model, init_pose_model,
                          vis_pose_result)
 from mmpose.datasets import DatasetInfo
 
-project_name = 'CYS.220652-温州瑞浦顶盖焊检测/02-关键点/A2'
+project_name = 'CYS.220652-温州瑞浦顶盖焊检测/02-关键点/B1'
 dataset_path = f'/data2/5-标注数据/{project_name}'
 file_root = dataset_path  # 当前文件夹下的所有图片
 Run_config = "configs2/CYS.220301-密封钉检测/密封钉配置文件.py"
-Pose_checkpoint = '/data/14-调试数据/txj/CYS.220301-密封钉检测/02-关键点/CYS.220652-温州瑞浦顶盖焊检测/02-关键点/A2/20220830_100223.pth'
+Pose_checkpoint = '/data/14-调试数据/txj/CYS.220301-密封钉检测/02-关键点/CYS.220652-温州瑞浦顶盖焊检测/02-关键点/A2/20220831_153119.pth'
 
 Result_path = 'InferResult/' + project_name
 # bbox = [457.5, 0, 10, 613]
-bbox = [0, 0, 1024, 1024]
+bbox = [0, 0, 600, 1263]
 
 
 def main():
@@ -72,7 +72,7 @@ def main():
         dataset_info = DatasetInfo(dataset_info)
 
     # optional
-    return_heatmap = False
+    return_heatmap = True
     # e.g. use ('backbone', ) to return backbone feature
     output_layer_names = None
     file_list = os.listdir(file_root)

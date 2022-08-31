@@ -5,7 +5,7 @@ from mmcv.runner.builder import RUNNERS
 from mmcv.runner.dist_utils import master_only
 from mmcv.runner.epoch_based_runner import EpochBasedRunner
 
-from mmdet.datasets.pipelines import Compose
+from mmpose.datasets.pipelines import Compose
 from mmdet.utils.logger import get_root_logger
 from sonic_ai.pipelines.utils_checkpoint import get_checkpoint
 

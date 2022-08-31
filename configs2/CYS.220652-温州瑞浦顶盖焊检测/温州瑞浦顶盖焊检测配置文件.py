@@ -7,7 +7,7 @@ from configs2.base.base_sonic_dataset import Setinference_channel
 _base_ = ['../base/default_runtime.py',
           '../base/schedule_sonic.py',
           '../base/base_sonic_dataset.py',
-          './密封钉骨骼点配置.py']
+          './温州瑞浦顶盖焊检测骨骼点配置.py']
 
 # 服务器路径
 project_name = 'CYS.220652-温州瑞浦顶盖焊检测/02-关键点/A2'
@@ -26,7 +26,7 @@ badcase_path = save_model_path
 timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
 total_epochs = 50
 checkpoint_config = dict(interval=10)
-evaluation = dict(interval=1, metric='mAP', save_best='AP')
+evaluation = dict(interval=100, metric='mAP', save_best='AP')
 
 channel_cfg = dict(
     num_output_channels=num_classes,
@@ -151,7 +151,7 @@ test_init_pipeline = [
 data = dict(
     persistent_workers=False,
     samples_per_gpu=4,
-    workers_per_gpu=0,
+    workers_per_gpu=4,
     val_dataloader=dict(samples_per_gpu=32),
     test_dataloader=dict(samples_per_gpu=32),
     train=dict(
@@ -195,6 +195,6 @@ LoadCategoryList = None
 lr_config = dict(
     policy='step',
     warmup='linear',
-    warmup_iters=500,
+    warmup_iters=10,
     warmup_ratio=0.001,
-    step=[170, 200])
+    step=[45, 50])

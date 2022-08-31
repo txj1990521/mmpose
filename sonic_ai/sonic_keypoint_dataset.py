@@ -12,7 +12,7 @@ import numpy as np
 from mmpose.core import soft_oks_nms, oks_nms
 from mmpose.datasets.datasets.top_down.topdown_coco_dataset import TopDownCocoDataset
 from mmpose.datasets.builder import DATASETS
-from mmdet.datasets.pipelines.compose import Compose
+from mmpose.datasets.pipelines import Compose
 from xtcocotools.coco import COCO
 
 

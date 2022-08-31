@@ -411,7 +411,7 @@ def _annotation(annotations, bboxes_list, keypoints_list, json_path, ismakeKeypo
         num_keypoints = 0
         bbox = object['points']
         data_anno = dict(
-            id=i,
+            id=idx,
             image_id=idx,
             category_id=category_id,
             iscrowd=0,

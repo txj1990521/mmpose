@@ -27,8 +27,11 @@ badcase_path = save_model_path
 timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
 total_epochs = 50
 checkpoint_config = dict(interval=10)
-evaluation = dict(interval=1, metric='mAP', save_best='AP')
-
+evaluation = dict(interval=100, metric='mAP', save_best='AP')
+if not os.path.exists('TrainMap'):
+    os.mkdir('TrainMap')
+if not os.path.exists('InferMap'):
+    os.mkdir('InferMap')
 channel_cfg = dict(
     num_output_channels=num_classes,
     dataset_joints=num_classes,
@@ -92,7 +95,7 @@ train_pipeline = [
         std=[0.229, 0.224, 0.225]),
     dict(type='TopDownGenerateTarget', sigma=2),  # 生成目标热图
     dict(
-        type='Collect',
+        type='SonicCollect', make_heatmap=True,
         keys=['img', 'target', 'target_weight'],
         meta_keys=[
             'image_file', 'joints_3d', 'joints_3d_visible', 'center', 'scale',
@@ -148,9 +151,9 @@ test_init_pipeline = [
     dict(type='SaveJson'),
 ]
 data = dict(
-    persistent_workers=True,
+    persistent_workers=False,
     samples_per_gpu=4,
-    workers_per_gpu=4,
+    workers_per_gpu=0,
     val_dataloader=dict(samples_per_gpu=32),
     test_dataloader=dict(samples_per_gpu=32),
     train=dict(

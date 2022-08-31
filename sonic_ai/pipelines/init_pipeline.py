@@ -17,7 +17,7 @@ import torch.distributed
 from mmcv.runner.dist_utils import master_only
 from torch import distributed as dist
 from tqdm import tqdm
-from mmdet.datasets.builder import PIPELINES
+from mmpose.datasets.builder import PIPELINES
 from mmdet.utils import get_root_logger
 from sonic_ai.pipelines.utils_labelme import copy_json_and_img, shape_to_points, _annotation
 

@@ -11,6 +11,7 @@ from mmpose.core.post_processing import (affine_transform, fliplr_joints,
                                          warp_affine_joints)
 from mmpose.datasets.builder import PIPELINES
 import matplotlib
+import json
 
 
 @PIPELINES.register_module()
@@ -291,6 +292,13 @@ class TopDownAffine:
         c = results['center']
         s = results['scale']
         r = results['rotation']
+        jsonpath = results['image_file'].replace('png', 'json')
+        f = open(jsonpath, 'r')
+        content = f.read()
+        a = json.loads(content)
+        if int(a['shapes'][0]['points'][0][1]) != int(joints_3d[0][1]) or int(a['shapes'][1]['points'][0][1]) != int(
+                joints_3d[1][1]):
+            print(jsonpath)
 
         if self.use_udp:
             trans = get_warp_matrix(r, c * 2.0, image_size - 1.0, s * 200.0)
@@ -460,7 +468,7 @@ class TopDownGenerateTarget:
 
                     target[joint_id][img_y[0]:img_y[1], img_x[0]:img_x[1]] = \
                         g[g_y[0]:g_y[1], g_x[0]:g_x[1]]
-                matplotlib.image.imsave('tmp/' + filename + str(joint_id) + '_.png', target[joint_id])
+                # matplotlib.image.imsave('tmp/' + filename + str(joint_id) + '_.png', target[joint_id])
         if use_different_joint_weights:
             target_weight = np.multiply(target_weight, joint_weights)
 

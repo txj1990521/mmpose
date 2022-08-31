@@ -8,7 +8,7 @@ from pathlib import Path
 
 import torch
 
-from mmdet.datasets.builder import PIPELINES
+from mmpose.datasets.builder import PIPELINES
 from mmdet.utils import get_root_logger
 from sonic_ai.pipelines.utils_crypto import save_file, save_files
 from sonic_ai.pipelines.utils_deploy import deploy

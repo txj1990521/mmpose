@@ -3,7 +3,7 @@ import os.path as osp
 
 from torch import distributed as dist
 
-from mmdet.datasets.builder import PIPELINES
+from mmpose.datasets.builder import PIPELINES
 from mmdet.utils import get_root_logger
 from sonic_ai.pipelines.utils_checkpoint import save_checkpoint_original
 from sonic_ai.pipelines.utils_crypto import save_checkpoint as save_checkpoint_encrypted

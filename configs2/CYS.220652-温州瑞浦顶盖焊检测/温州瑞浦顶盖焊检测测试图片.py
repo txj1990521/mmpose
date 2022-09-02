@@ -9,15 +9,15 @@ from mmpose.apis import (inference_top_down_pose_model, init_pose_model,
                          vis_pose_result)
 from mmpose.datasets import DatasetInfo
 
-project_name = 'CYS.220652-温州瑞浦顶盖焊检测/02-关键点/B1'
+project_name = 'CYS.220652-温州瑞浦顶盖焊检测/02-关键点/B2'
 dataset_path = f'/data2/5-标注数据/{project_name}'
 file_root = dataset_path  # 当前文件夹下的所有图片
 Run_config = "configs2/CYS.220301-密封钉检测/密封钉配置文件.py"
-Pose_checkpoint = '/data/14-调试数据/txj/CYS.220301-密封钉检测/02-关键点/CYS.220652-温州瑞浦顶盖焊检测/02-关键点/20220901_174054.pth'
+Pose_checkpoint = '/data/14-调试数据/txj/CYS.220301-密封钉检测/02-关键点/CYS.220652-温州瑞浦顶盖焊检测/02-关键点/20220902_113330.pth'
 
 Result_path = 'InferResult/' + project_name
 # bbox = [457.5, 0, 10, 613]
-bbox = [0, 0, 600, 1263]
+bbox = [0, 0, 600, 2600]
 
 
 def main():
@@ -106,7 +106,7 @@ def main():
                 out_file = None
             else:
                 os.makedirs(args.out_img_root, exist_ok=True)
-                out_file = os.path.join(args.out_img_root, f'vis_{i}.jpg')
+                out_file = os.path.join(args.out_img_root, (''.join(file_list[i].split('.')[:-1]) + '.jpg'))
             # 显示检测结果
             vis_pose_result(
                 pose_model,

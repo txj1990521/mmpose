@@ -1,8 +1,11 @@
 from mmcv.parallel import DataContainer as DC
 from mmpose.datasets.builder import PIPELINES
 from mmpose.datasets.pipelines.shared_transform import Collect
-import cv2 as cv
+from PIL import Image
+import cv2
 import json
+import numpy as np
+import os
 
 
 @PIPELINES.register_module()
@@ -45,20 +48,21 @@ class SonicCollect(Collect):
         if 'bbox_id' in results:
             meta['bbox_id'] = results['bbox_id']
         data[self.meta_name] = DC(meta, cpu_only=True)
-
-        img_resize_w = results['image_size'][0]
-        img_resize_h = results['image_size'][1]
-        img = cv.imread(meta['image_file'])
-        img = cv.resize(img, (img_resize_w, img_resize_h))
-        for i in range(len(meta['joints_3d'])):
-            circle_x = meta['joints_3d'][i][0]
-            circle_y = meta['joints_3d'][i][1]
-            cv.circle(img, (int(circle_x), int(circle_y)), 5, (0, 255, 0), -1)
-        cv.imwrite(
-            'TrainPointImage/' + meta['image_file'].split('/')[-2] + '/' + meta['image_file'].split('/')[-1].replace(
-                '.png',
-                '') + '_trainmap.png',
-            img)
-        # if self.makeHeatmap:
-        #     print()
+        h, w = results['img'].shape[1:3]
+        vis = results['img'].cpu().numpy()
+        vis -= vis.min()
+        vis /= vis.max()
+        vis *= 255
+        vis = vis.transpose(1, 2, 0).astype(np.uint8)
+        vis = cv2.cvtColor(vis, cv2.COLOR_BGR2RGB)
+        a = data['target'].copy()
+        a = a.max(axis=0)
+        a *= 255
+        a = cv2.resize(a, (w, h))
+        vis[:, :, 1] = a
+        save_path = 'TrainPointImage/' + '/'.join(meta['image_file'].split('/')[4:-1])
+        if not os.path.exists(save_path):
+            os.makedirs(save_path)
+        Image.fromarray(vis).save(save_path+ '/' + ''.join(
+            meta['image_file'].split('/')[-1].split('.')[:-1]) + '_trainmap.png')
         return data

@@ -28,6 +28,9 @@ total_epochs = 50
 checkpoint_config = dict(interval=10)
 evaluation = dict(interval=100, metric='mAP', save_best='AP')
 
+if not os.path.exists('InferMap/'+project_name):
+    os.makedirs('InferMap/'+project_name)
+
 channel_cfg = dict(
     num_output_channels=num_classes,
     dataset_joints=num_classes,
@@ -52,8 +55,8 @@ model = dict(
         modulate_kernel=11))
 
 data_cfg = dict(
-    image_size=[512, 512],
-    heatmap_size=[128, 128],
+    image_size=[256, 1024],
+    heatmap_size=[64, 256],
     # heatmap_size=[48, 64],
     num_output_channels=channel_cfg['num_output_channels'],
     num_joints=channel_cfg['dataset_joints'],
@@ -72,17 +75,17 @@ data_cfg = dict(
 train_pipeline = [
     dict(type='LoadImageFromFile', color_type='unchanged'),
     dict(type='CopyChannel', target_channel=3, overwrite_shape=True, add_noise=False),
-    dict(type='TopDownGetBboxCenterScale',
-         padding=1.25),  # 将 bbox 从 [x, y, w, h] 转换为中心和缩放
-    dict(type='TopDownRandomShiftBboxCenter', shift_factor=0.16,
-         prob=0.3),  # 随机移动 bbox 中心。
-    dict(type='TopDownRandomFlip', flip_prob=0.5),  # 随机图像翻转的数据增强
-    dict(
-        type='TopDownHalfBodyTransform',  # 半身数据增强
-        num_joints_half_body=8,
-        prob_half_body=0.3),
-    dict(
-        type='TopDownGetRandomScaleRotation', rot_factor=40, scale_factor=0.5),
+    # dict(type='TopDownGetBboxCenterScale',
+    #      padding=1.25),  # 将 bbox 从 [x, y, w, h] 转换为中心和缩放
+    # dict(type='TopDownRandomShiftBboxCenter', shift_factor=0.16,
+    #      prob=0.3),  # 随机移动 bbox 中心。
+    # dict(type='TopDownRandomFlip', flip_prob=0.5),  # 随机图像翻转的数据增强
+    # dict(
+    #     type='TopDownHalfBodyTransform',  # 半身数据增强
+    #     num_joints_half_body=8,
+    #     prob_half_body=0.3),
+    # dict(
+    #     type='TopDownGetRandomScaleRotation', rot_factor=40, scale_factor=0.5),
     # 随机缩放和旋转的数据增强，rot_factor旋转的角度，scale_factor缩放的数据增强系数
     dict(type='TopDownAffine'),  # 仿射变换图像进行输入
     dict(type='ToTensor'),  # 将图像转换为pytorch的变量tensor
@@ -92,7 +95,7 @@ train_pipeline = [
         std=[0.229, 0.224, 0.225]),
     dict(type='TopDownGenerateTarget', sigma=2),  # 生成目标热图
     dict(
-        type='Collect',
+        type='SonicCollect',
         keys=['img', 'target', 'target_weight'],
         meta_keys=[
             'image_file', 'joints_3d', 'joints_3d_visible', 'center', 'scale',
@@ -103,7 +106,7 @@ train_pipeline = [
 val_pipeline = [
     dict(type='LoadImageFromFile', color_type='unchanged'),
     dict(type='CopyChannel', target_channel=3, overwrite_shape=True, add_noise=False),
-    dict(type='TopDownGetBboxCenterScale', padding=1.25),  # 将 bbox 从 [x, y, w, h] 转换为中心和缩放
+    # dict(type='TopDownGetBboxCenterScale', padding=1.25),  # 将 bbox 从 [x, y, w, h] 转换为中心和缩放
     dict(type='TopDownAffine'),  # 仿射变换图像进行输入
     dict(type='ToTensor'),  # 将图像转换为pytorch的变量tensor
     dict(
@@ -151,7 +154,7 @@ test_init_pipeline = [
 data = dict(
     persistent_workers=False,
     samples_per_gpu=64,
-    workers_per_gpu=0,
+    workers_per_gpu=4,
     val_dataloader=dict(samples_per_gpu=32),
     test_dataloader=dict(samples_per_gpu=32),
     train=dict(

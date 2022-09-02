@@ -10,9 +10,9 @@ _base_ = ['../base/default_runtime.py',
           './温州瑞浦顶盖焊检测骨骼点配置.py']
 
 # 服务器路径
-project_name = 'CYS.220652-温州瑞浦顶盖焊检测/02-关键点/A2'
+project_name = 'CYS.220652-温州瑞浦顶盖焊检测/02-关键点'
 dataset_path = f'/data2/5-标注数据/{project_name}'
-label_path = os.path.dirname(os.path.realpath(f'{dataset_path}')) + '/label.ini'
+label_path = dataset_path + '/label.ini'
 dataset_path_list = [f'{dataset_path}']
 num_classes = len(
     LoadCategoryList()(results={'label_path': label_path})['point_list'])
@@ -46,7 +46,7 @@ model = dict(
         loss_keypoint=dict(type='JointsMSELoss', use_target_weight=True)),
     train_cfg=dict(),
     test_cfg=dict(
-        flip_test=True,
+        flip_test=False,
         post_process='default',
         shift_heatmap=True,
         modulate_kernel=11))
@@ -150,8 +150,8 @@ test_init_pipeline = [
 ]
 data = dict(
     persistent_workers=False,
-    samples_per_gpu=4,
-    workers_per_gpu=4,
+    samples_per_gpu=64,
+    workers_per_gpu=0,
     val_dataloader=dict(samples_per_gpu=32),
     test_dataloader=dict(samples_per_gpu=32),
     train=dict(
@@ -180,7 +180,7 @@ data = dict(
         timestamp=timestamp,
     ))
 log_config = dict(
-    interval=10,
+    interval=1,
     hooks=[
         dict(type='TextLoggerHook'),
         # dict(type='TensorboardLoggerHook')

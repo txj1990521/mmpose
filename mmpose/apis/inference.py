@@ -270,11 +270,11 @@ def _inference_single_pose_model(model,
             img_metas=batch_data['img_metas'],
             return_loss=False,
             return_heatmap=return_heatmap)
-    matplotlib.image.imsave('InferMap/' + result['image_paths'][0].split('/')[-1].replace('.png', '') + '_0.png',
-                            result['output_heatmap'][0][0])
-    matplotlib.image.imsave('InferMap/' + result['image_paths'][0].split('/')[-1].replace('.png', '') + '_1.png',
-                            result['output_heatmap'][0][1])
-    matplotlib.image.imsave('tmp_01.png', result['output_heatmap'][0][1])
+    # matplotlib.image.imsave('InferMap/' + result['image_paths'][0].split('/')[-1].replace('.png', '') + '_0.png',
+    #                         result['output_heatmap'][0][0])
+    # matplotlib.image.imsave('InferMap/' + result['image_paths'][0].split('/')[-1].replace('.png', '') + '_1.png',
+    #                         result['output_heatmap'][0][1])
+
     return result['preds'], result['output_heatmap']
 
 

@@ -25,13 +25,16 @@ Setinference_channel = current_channel
 save_model_path = '/data/14-调试数据/txj/CYS.210803-分条机CCD-惠州赣锋-关键点测试'
 badcase_path = save_model_path
 timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
-total_epochs = 50
+total_epochs = 20
 checkpoint_config = dict(interval=10)
 evaluation = dict(interval=100, metric='mAP', save_best='AP')
-if not os.path.exists('TrainMap'):
-    os.mkdir('TrainMap')
-if not os.path.exists('InferMap'):
-    os.mkdir('InferMap')
+
+if not os.path.exists('TrainPointImage/'+project_name):
+    os.makedirs('TrainPointImage/'+project_name)
+if not os.path.exists('InferMap/'+project_name):
+    os.makedirs('InferMap/'+project_name)
+if not os.path.exists('TrainMap/'+project_name):
+    os.makedirs('TrainMap/'+project_name)
 channel_cfg = dict(
     num_output_channels=num_classes,
     dataset_joints=num_classes,
@@ -50,7 +53,7 @@ model = dict(
         loss_keypoint=dict(type='JointsMSELoss', use_target_weight=False)),
     train_cfg=dict(),
     test_cfg=dict(
-        flip_test=True,
+        flip_test=False,
         post_process='default',
         shift_heatmap=True,
         modulate_kernel=11))
@@ -95,7 +98,7 @@ train_pipeline = [
         std=[0.229, 0.224, 0.225]),
     dict(type='TopDownGenerateTarget', sigma=2),  # 生成目标热图
     dict(
-        type='SonicCollect', make_heatmap=True,
+        type='Collect', make_heatmap=True,
         keys=['img', 'target', 'target_weight'],
         meta_keys=[
             'image_file', 'joints_3d', 'joints_3d_visible', 'center', 'scale',
@@ -152,7 +155,7 @@ test_init_pipeline = [
 ]
 data = dict(
     persistent_workers=False,
-    samples_per_gpu=4,
+    samples_per_gpu=32,
     workers_per_gpu=0,
     val_dataloader=dict(samples_per_gpu=32),
     test_dataloader=dict(samples_per_gpu=32),
@@ -182,7 +185,7 @@ data = dict(
         timestamp=timestamp,
     ))
 log_config = dict(
-    interval=10,
+    interval=2,
     hooks=[
         dict(type='TextLoggerHook'),
         # dict(type='TensorboardLoggerHook')
@@ -197,6 +200,6 @@ LoadCategoryList = None
 lr_config = dict(
     policy='step',
     warmup='linear',
-    warmup_iters=50,
+    warmup_iters=5,
     warmup_ratio=0.001,
-    step=[45, 48])
+    step=[17, 20])

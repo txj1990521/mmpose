@@ -13,7 +13,7 @@ project_name = 'CYS.210803-分条机CCD-惠州赣锋-关键点测试'
 dataset_path = f'/data2/5-标注数据/{project_name}'
 file_root = dataset_path  # 当前文件夹下的所有图片
 Run_config = "configs2/CYS.210803-分条机CCD-惠州赣锋-关键点测试/赣锋配置文件.py"
-Pose_checkpoint = '/data/14-调试数据/txj/CYS.210803-分条机CCD-惠州赣锋-关键点测试/CYS.210803-分条机CCD-惠州赣锋-关键点测试/20220831_143342.pth'
+Pose_checkpoint = '/data/14-调试数据/txj/CYS.210803-分条机CCD-惠州赣锋-关键点测试/CYS.210803-分条机CCD-惠州赣锋-关键点测试/20220901_140026.pth'
 
 Result_path = 'InferResult/' + project_name
 

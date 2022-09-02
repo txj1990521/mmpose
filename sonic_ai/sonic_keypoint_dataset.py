@@ -12,7 +12,7 @@ import numpy as np
 from mmpose.core import soft_oks_nms, oks_nms
 from mmpose.datasets.datasets.top_down.topdown_coco_dataset import TopDownCocoDataset
 from mmpose.datasets.builder import DATASETS
-from mmpose.datasets.pipelines import Compose
+from mmdet.datasets.pipelines import Compose
 from xtcocotools.coco import COCO
 
 
@@ -153,10 +153,11 @@ class SonicKeyPointDataset(TopDownCocoDataset):
             joints_3d_visible[:, :2] = np.minimum(1, keypoints[:, 2:3])
 
             center, scale = self._xywh2cs(*obj['clean_bbox'][:4])
+            filedir = '/'.join(self.data['json_path_list'][img_id].replace('.json', '').split('/')[7:-1])
             if len(self.img_prefix) == 1:
-                image_file = osp.join(self.img_prefix[0], self.id2name[img_id])
+                image_file = osp.join(self.img_prefix[0], filedir, self.id2name[img_id])
             else:
-                image_file = osp.join(self.img_prefix, self.id2name[img_id])
+                image_file = osp.join(self.img_prefix, filedir, self.id2name[img_id])
             rec.append({
                 'image_file': image_file,
                 'center': center,

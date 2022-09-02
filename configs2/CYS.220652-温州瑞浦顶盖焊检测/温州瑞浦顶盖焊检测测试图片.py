@@ -13,7 +13,7 @@ project_name = 'CYS.220652-温州瑞浦顶盖焊检测/02-关键点/B1'
 dataset_path = f'/data2/5-标注数据/{project_name}'
 file_root = dataset_path  # 当前文件夹下的所有图片
 Run_config = "configs2/CYS.220301-密封钉检测/密封钉配置文件.py"
-Pose_checkpoint = '/data/14-调试数据/txj/CYS.220301-密封钉检测/02-关键点/CYS.220652-温州瑞浦顶盖焊检测/02-关键点/A2/20220831_153119.pth'
+Pose_checkpoint = '/data/14-调试数据/txj/CYS.220301-密封钉检测/02-关键点/CYS.220652-温州瑞浦顶盖焊检测/02-关键点/20220901_174054.pth'
 
 Result_path = 'InferResult/' + project_name
 # bbox = [457.5, 0, 10, 613]

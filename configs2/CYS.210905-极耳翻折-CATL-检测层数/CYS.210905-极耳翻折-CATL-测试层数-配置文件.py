@@ -7,11 +7,11 @@ from configs2.base.base_sonic_dataset import Setinference_channel
 _base_ = ['../base/default_runtime.py',
           '../base/schedule_sonic.py',
           '../base/base_sonic_dataset.py',
-          './温州瑞浦顶盖焊检测骨骼点配置.py']
+          './CYS.210905-极耳翻折-CATL-测试层数骨骼点配置.py']
 
 # 服务器路径
-project_name = 'CYS.220652-温州瑞浦顶盖焊检测/02-关键点'
-dataset_path = f'/data2/5-标注数据/{project_name}'
+project_name = 'CYS.210905-极耳翻折-CATL/切割10'
+dataset_path = f'/data2/4-标注任务/{project_name}'
 label_path = dataset_path + '/label.ini'
 dataset_path_list = [f'{dataset_path}']
 num_classes = len(
@@ -21,10 +21,10 @@ Setdataset_channel = [
     current_channel,
 ]
 Setinference_channel = current_channel
-save_model_path = '/data/14-调试数据/txj/CYS.220301-密封钉检测/02-关键点'
+save_model_path = '/data/14-调试数据/txj/CYS.210905-极耳翻折-CATL/'
 badcase_path = save_model_path
 timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
-total_epochs = 200
+total_epochs = 50
 checkpoint_config = dict(interval=10)
 evaluation = dict(interval=1000, metric='mAP', save_best='AP')
 
@@ -153,7 +153,7 @@ test_init_pipeline = [
 ]
 data = dict(
     persistent_workers=False,
-    samples_per_gpu=64,
+    samples_per_gpu=4,
     workers_per_gpu=4,
     val_dataloader=dict(samples_per_gpu=32),
     test_dataloader=dict(samples_per_gpu=32),
@@ -198,6 +198,6 @@ LoadCategoryList = None
 lr_config = dict(
     policy='step',
     warmup='linear',
-    warmup_iters=10,
+    warmup_iters=5,
     warmup_ratio=0.001,
-    step=[170, 200])
+    step=[47, 50])

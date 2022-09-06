@@ -14,6 +14,8 @@ dataset_path = f'/data2/5-标注数据/{project_name}'
 file_root = dataset_path  # 当前文件夹下的所有图片
 Run_config = "configs2/CYS.210803-分条机CCD-惠州赣锋-关键点测试/赣锋配置文件.py"
 Pose_checkpoint = '/data/14-调试数据/txj/CYS.210803-分条机CCD-惠州赣锋-关键点测试/CYS.210803-分条机CCD-惠州赣锋-关键点测试/20220901_140026.pth'
+Pose_checkpoint = '/data/ypw/sonicpose/work_dirs/赣锋配置文件/20220831_103735.pth'
+os.makedirs('InferMap', exist_ok=True)
 
 Result_path = 'InferResult/' + project_name
 
@@ -93,7 +95,9 @@ def main():
             h, w = src.shape[0:2]
             # make project bounding boxes产生检测框
             # myproject_results = [{'bbox': [0, 0, w, h]}]
+
             d = 1
+
             myproject_results = [
                 {
                     'bbox': [w // 2 - d, int(h * 0.1), d * 2,

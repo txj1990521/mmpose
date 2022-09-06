@@ -8,6 +8,7 @@ import mmcv
 import matplotlib
 import numpy as np
 import torch
+import cv2
 from mmcv.parallel import collate, scatter
 from mmcv.runner import load_checkpoint
 from mmcv.utils.misc import deprecated_api_warning
@@ -270,14 +271,34 @@ def _inference_single_pose_model(model,
             img_metas=batch_data['img_metas'],
             return_loss=False,
             return_heatmap=return_heatmap)
-    save_path = 'TrainPointImage/' + '/'.join(imgs_or_paths.split('/')[4:-1])
+    # a = result['output_heatmap'][0].copy()
+    # a = a.max(axis=0)
+    # a *= 255
+    # a[a < 0] = 0
+    # a = a.astype(np.uint8)
+    # a = cv2.resize(a, (512, 512))
+    # vis = batch_data['img'][0].cpu().numpy()
+    # vis -= vis.min()
+    # vis /= vis.max()
+    # vis *= 255
+    # vis = vis.transpose(1, 2, 0).astype(np.uint8)
+    # vis[:, :, 1] = a
+    # Image.fromarray(vis).save('test.png')
+    save_path = 'InferMap/' + '/'.join(imgs_or_paths.split('/')[3:-1]) + '/'
     if not os.path.exists(save_path):
         os.makedirs(save_path)
-    matplotlib.image.imsave(save_path + result['image_paths'][0].split('/')[-1].replace('.png', '') + '_0.png',
+    # Image.fromarray(vis).save(
+    #     save_path + ''.join(result['image_paths'][0].split('/')[-1].split('.')[:-1]) + '_InferMap.png')
+    matplotlib.image.imsave(save_path + ''.join(result['image_paths'][0].split('/')[-1].split('.')[:-1]) + '_0.png',
                             result['output_heatmap'][0][0])
     matplotlib.image.imsave(save_path + result['image_paths'][0].split('/')[-1].replace('.png', '') + '_1.png',
                             result['output_heatmap'][0][1])
-
+    # img = cv2.imread(imgs_or_paths)
+    # for i in range(int(result['preds'][0].shape[0])):
+    #     for j in range(int(result['preds'][0].shape[1] - 1)):
+    #         img = cv2.circle(img, (int(result['preds'][0][i][j]), int(result['preds'][0][i][j + 1])), 5, (0, 255, 0),
+    #                          -1)
+    # cv2.imwrite('test.png', img)
     return result['preds'], result['output_heatmap']
 
 
@@ -792,7 +813,8 @@ def vis_pose_result(model,
 
     if hasattr(model, 'module'):
         model = model.module
-
+    if os.path.exists(img.replace('-H', '-G')):
+        img = img.replace('-H', '-G')
     img = model.show_result(
         img,
         result,

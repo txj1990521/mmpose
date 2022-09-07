@@ -27,18 +27,10 @@ badcase_path = save_model_path
 timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
 total_epochs = 20
 checkpoint_config = dict(interval=10)
-<<<<<<< HEAD
 evaluation = dict(interval=100, metric='mAP', save_best='AP')
-=======
 evaluation = dict(interval=1000, metric='mAP', save_best='AP')
->>>>>>> 5c6639b0104f74edca2accc85ce2eb29295e615f
 
-if not os.path.exists('TrainPointImage/'+project_name):
-    os.makedirs('TrainPointImage/'+project_name)
-if not os.path.exists('InferMap/'+project_name):
-    os.makedirs('InferMap/'+project_name)
-if not os.path.exists('TrainMap/'+project_name):
-    os.makedirs('TrainMap/'+project_name)
+
 channel_cfg = dict(
     num_output_channels=num_classes,
     dataset_joints=num_classes,
@@ -159,11 +151,8 @@ test_init_pipeline = [
 ]
 data = dict(
     persistent_workers=False,
-<<<<<<< HEAD
+
     samples_per_gpu=32,
-=======
-    samples_per_gpu=4,
->>>>>>> 5c6639b0104f74edca2accc85ce2eb29295e615f
     workers_per_gpu=0,
     val_dataloader=dict(samples_per_gpu=32),
     test_dataloader=dict(samples_per_gpu=32),

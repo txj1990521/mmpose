@@ -112,7 +112,6 @@ class SonicKeyPointDataset(TopDownCocoDataset):
         width = img_ann['width']
         height = img_ann['height']
         num_joints = self.ann_info['num_joints']
-
         ann_ids = self.coco.getAnnIds(imgIds=img_id, iscrowd=False)
         objs = self.coco.loadAnns(ann_ids)
 
@@ -134,7 +133,6 @@ class SonicKeyPointDataset(TopDownCocoDataset):
         bbox_id = 0
         rec = []
         for obj in objs:
-
             if 'keypoints' not in obj:
                 continue
             if max(obj['keypoints']) == 0:

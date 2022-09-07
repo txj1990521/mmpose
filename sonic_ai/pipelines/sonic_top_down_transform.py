@@ -60,6 +60,7 @@ class sonicTopDownGenerateTarget(TopDownGenerateTarget):
                 br = [mu_x + tmp_size + 1, mu_y + tmp_size + 1]
                 if ul[0] >= W or ul[1] >= H or br[0] < 0 or br[1] < 0:
                     target_weight[joint_id] = 0
+
                 if target_weight[joint_id] == 0:
                     continue
 

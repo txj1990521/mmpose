@@ -28,9 +28,6 @@ total_epochs = 200
 checkpoint_config = dict(interval=10)
 evaluation = dict(interval=1000, metric='mAP', save_best='AP')
 
-if not os.path.exists('InferMap/' + project_name):
-    os.makedirs('InferMap/' + project_name)
-
 channel_cfg = dict(
     num_output_channels=num_classes,
     dataset_joints=num_classes,

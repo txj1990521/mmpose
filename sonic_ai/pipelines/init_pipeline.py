@@ -72,10 +72,8 @@ class Labelme2COCOKeypoints:
                     flags={})
                 for shape in data['shapes']:
                     if shape['shape_type'] == 'point':
-                        shape['points'][0][0] = width // 2
+                        # shape['points'][0][0] = width // 2
                         keypoints_list.append(shape)
-                        # keypoints_x.append(shape['points'][0][0])
-                        # keypoints_y.append(shape['points'][0][1])
                     elif shape['shape_type'] == 'rectangle':  # bboxs
                         bboxes_list.append(shape)
 

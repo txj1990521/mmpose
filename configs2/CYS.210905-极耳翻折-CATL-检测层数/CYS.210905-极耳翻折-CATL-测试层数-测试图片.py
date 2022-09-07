@@ -2,10 +2,9 @@
 import os
 import sys
 import warnings
-import cv2
 from tqdm import tqdm
 from argparse import ArgumentParser
-from mmpose.apis import (inference_top_down_pose_model, init_pose_model,
+from sonic_ai.api.sonic_inference import (inference_top_down_pose_model, init_pose_model,
                          vis_pose_result)
 from mmpose.datasets import DatasetInfo
 
@@ -16,8 +15,7 @@ Run_config = "configs2/CYS.210905-极耳翻折-CATL-检测层数/CYS.210905-极�
 Pose_checkpoint = '/data/14-调试数据/txj/CYS.210905-极耳翻折-CATL//CYS.210905-极耳翻折-CATL/切割10/20220906_105257.pth'
 
 Result_path = 'InferResult/' + project_name
-# bbox = [457.5, 0, 10, 613]
-bbox = [0, 0, 600, 5120]
+bbox = [0, 0, 256, 5120]
 
 
 def main():

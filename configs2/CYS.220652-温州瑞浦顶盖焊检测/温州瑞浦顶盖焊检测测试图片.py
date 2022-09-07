@@ -17,7 +17,7 @@ Pose_checkpoint = '/data/14-调试数据/txj/CYS.220301-密封钉检测/02-关�
 
 Result_path = 'InferResult/' + project_name
 # bbox = [457.5, 0, 10, 613]
-bbox = [0, 0, 600, 2600]
+bbox = [0, 0, 600, 5120]
 
 
 def main():

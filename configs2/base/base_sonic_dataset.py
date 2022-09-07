@@ -9,7 +9,8 @@ custom_imports = dict(
              'sonic_ai.pipelines.after_run_pipeline',
              'sonic_ai.sonic_after_run_hook',
              'sonic_ai.pipelines.dataset_pipeline',
-             'sonic_ai.pipelines.sonic_shared_transform'], allow_failed_imports=True)
+             'sonic_ai.pipelines.sonic_shared_transform',
+             'sonic_ai.pipelines.sonic_TopDownGenerateTarget'], allow_failed_imports=True)
 dataset_type = 'SonicKeyPointDataset'
 img_scale = (640, 640)
 Setdataset_channel = [

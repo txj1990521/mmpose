@@ -24,7 +24,7 @@ Setinference_channel = current_channel
 save_model_path = '/data/14-调试数据/txj/CYS.210905-极耳翻折-CATL/'
 badcase_path = save_model_path
 timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
-total_epochs = 50
+total_epochs = 200
 checkpoint_config = dict(interval=10)
 evaluation = dict(interval=1000, metric='mAP', save_best='AP')
 
@@ -55,8 +55,8 @@ model = dict(
         modulate_kernel=11))
 
 data_cfg = dict(
-    image_size=[256, 1024],
-    heatmap_size=[64, 256],
+    image_size=[128, 2560],
+    heatmap_size=[32, 640],
     # heatmap_size=[48, 64],
     num_output_channels=channel_cfg['num_output_channels'],
     num_joints=channel_cfg['dataset_joints'],
@@ -75,25 +75,13 @@ data_cfg = dict(
 train_pipeline = [
     dict(type='LoadImageFromFile', color_type='unchanged'),
     dict(type='CopyChannel', target_channel=3, overwrite_shape=True, add_noise=False),
-    # dict(type='TopDownGetBboxCenterScale',
-    #      padding=1.25),  # 将 bbox 从 [x, y, w, h] 转换为中心和缩放
-    # dict(type='TopDownRandomShiftBboxCenter', shift_factor=0.16,
-    #      prob=0.3),  # 随机移动 bbox 中心。
-    # dict(type='TopDownRandomFlip', flip_prob=0.5),  # 随机图像翻转的数据增强
-    # dict(
-    #     type='TopDownHalfBodyTransform',  # 半身数据增强
-    #     num_joints_half_body=8,
-    #     prob_half_body=0.3),
-    # dict(
-    #     type='TopDownGetRandomScaleRotation', rot_factor=40, scale_factor=0.5),
-    # 随机缩放和旋转的数据增强，rot_factor旋转的角度，scale_factor缩放的数据增强系数
     dict(type='TopDownAffine'),  # 仿射变换图像进行输入
     dict(type='ToTensor'),  # 将图像转换为pytorch的变量tensor
     dict(
         type='NormalizeTensor',  # 归一化
         mean=[0.485, 0.456, 0.406],
         std=[0.229, 0.224, 0.225]),
-    dict(type='TopDownGenerateTarget', sigma=2),  # 生成目标热图
+    dict(type='sonicTopDownGenerateTarget', sigma=2),  # 生成目标热图
     dict(
         type='SonicCollect',
         keys=['img', 'target', 'target_weight'],
@@ -198,6 +186,6 @@ LoadCategoryList = None
 lr_config = dict(
     policy='step',
     warmup='linear',
-    warmup_iters=5,
+    warmup_iters=50,
     warmup_ratio=0.001,
-    step=[47, 50])
+    step=[170, 200])

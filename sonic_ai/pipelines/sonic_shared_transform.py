@@ -7,7 +7,9 @@ import json
 import numpy as np
 import os
 
-
+'''
+收集训练的结果数据，并且可以保存heatmap图像到TrainPointImage中
+'''
 @PIPELINES.register_module()
 class SonicCollect(Collect):
     def __init__(self, keys, meta_keys, meta_name='img_metas', make_heatmap=False):

@@ -48,22 +48,17 @@ class TopDownCustomDataset(TopDownCocoDataset):
         self.nms_thr = data_cfg['nms_thr']
         self.oks_thr = data_cfg['oks_thr']
         self.vis_thr = data_cfg['vis_thr']
-
         self.db = self._get_db()
-
         print(f'=> num_images: {self.num_images}')
         print(f'=> load {len(self.db)} samples')
 
     def _load_coco_keypoint_annotation_kernel(self, img_id):
-
         img_ann = self.coco.loadImgs(img_id)[0]
         width = img_ann['width']
         height = img_ann['height']
         num_joints = self.ann_info['num_joints']
-
         ann_ids = self.coco.getAnnIds(imgIds=img_id, iscrowd=False)
         objs = self.coco.loadAnns(ann_ids)
-
         # sanitize bboxes
         valid_objs = []
         for obj in objs:
@@ -82,7 +77,6 @@ class TopDownCustomDataset(TopDownCocoDataset):
         bbox_id = 0
         rec = []
         for obj in objs:
-
             if 'keypoints' not in obj:
                 continue
             if max(obj['keypoints']) == 0:

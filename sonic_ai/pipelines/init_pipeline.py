@@ -21,8 +21,13 @@ from mmdet.datasets.builder import PIPELINES
 from mmdet.utils import get_root_logger
 from sonic_ai.pipelines.utils_labelme import copy_json_and_img, shape_to_points, _annotation
 
+'''
+主要是操作数据
+'''
+
 
 @PIPELINES.register_module()
+# 将lablelme的keypoint数据转化为coco数据格式
 class Labelme2COCOKeypoints:
 
     def __init__(self, bbox_full_image=False, *args, **kwargs):
@@ -58,8 +63,6 @@ class Labelme2COCOKeypoints:
                         id=idx, file_name=filename, height=height,
                         width=width))
                 bboxes_list, keypoints_list = [], []
-                keypoints_x = []
-                keypoints_y = []
                 boxinfo = dict(
                     mark='',
                     label='bbox',

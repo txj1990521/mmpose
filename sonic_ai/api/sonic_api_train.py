@@ -1,6 +1,5 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import warnings
-
 import mmcv
 import numpy as np
 import torch
@@ -9,12 +8,13 @@ from mmcv.parallel import MMDataParallel, MMDistributedDataParallel
 from mmcv.runner import (DistSamplerSeedHook, EpochBasedRunner, OptimizerHook,
                          get_dist_info, build_runner)
 from mmcv.utils import digit_version
-
 from mmpose.core import DistEvalHook, EvalHook, build_optimizers
 from mmpose.core.distributed_wrapper import DistributedDataParallelWrapper
 from mmpose.datasets import build_dataloader, build_dataset
 from mmpose.utils import get_root_logger
-
+'''
+这个训练方式主要是更改了train_model的方式，使得再runner可以自己建立参数
+'''
 try:
     from mmcv.runner import Fp16OptimizerHook
 except ImportError:

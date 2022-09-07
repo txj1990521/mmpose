@@ -2,25 +2,25 @@
 import copy
 import os
 import warnings
-from collections import defaultdict
-
 import mmcv
-import matplotlib
 import numpy as np
 import torch
 import cv2
+
+from collections import defaultdict
 from mmcv.parallel import collate, scatter
 from mmcv.runner import load_checkpoint
 from mmcv.utils.misc import deprecated_api_warning
 from PIL import Image
-
 from mmpose.core.bbox import bbox_xywh2xyxy, bbox_xyxy2xywh
 from mmpose.core.post_processing import oks_nms
 from mmpose.datasets.dataset_info import DatasetInfo
 from mmpose.datasets.pipelines import Compose, ToTensor
 from mmpose.models import build_posenet
 from mmpose.utils.hooks import OutputHook
-
+'''
+推理的时候，可以看到推理的heat_map图像，在文件InferMap中
+'''
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
 

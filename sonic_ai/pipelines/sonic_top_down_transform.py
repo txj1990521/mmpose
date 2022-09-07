@@ -4,7 +4,9 @@ from mmpose.datasets.builder import PIPELINES
 from mmpose.datasets.pipelines.top_down_transform import TopDownGenerateTarget
 import matplotlib
 
-
+'''
+产生目标的heatmap和preds,
+'''
 @PIPELINES.register_module()
 class sonicTopDownGenerateTarget(TopDownGenerateTarget):
     def __init__(self,
@@ -40,7 +42,6 @@ class sonicTopDownGenerateTarget(TopDownGenerateTarget):
         W, H = cfg['heatmap_size']
         joint_weights = cfg['joint_weights']
         use_different_joint_weights = cfg['use_different_joint_weights']
-        filename = imageFile.split('/')[-1].replace('.png', '')
         target_weight = np.zeros((num_joints, 1), dtype=np.float32)
         target = np.zeros((num_joints, H, W), dtype=np.float32)
 
@@ -59,7 +60,6 @@ class sonicTopDownGenerateTarget(TopDownGenerateTarget):
                 br = [mu_x + tmp_size + 1, mu_y + tmp_size + 1]
                 if ul[0] >= W or ul[1] >= H or br[0] < 0 or br[1] < 0:
                     target_weight[joint_id] = 0
-
                 if target_weight[joint_id] == 0:
                     continue
 
@@ -74,7 +74,6 @@ class sonicTopDownGenerateTarget(TopDownGenerateTarget):
         else:
             for joint_id in range(num_joints):
                 target_weight[joint_id] = joints_3d_visible[joint_id, 0]
-
                 feat_stride = image_size / [W, H]
                 mu_x = int(joints_3d[joint_id][0] / feat_stride[0] + 0.5)
                 mu_y = int(joints_3d[joint_id][1] / feat_stride[1] + 0.5)

@@ -57,10 +57,8 @@ class SonicKeyPointDataset(TopDownCocoDataset):
         self.tmp_dir = tempfile.TemporaryDirectory()
         self.ann_file = os.path.join(self.tmp_dir.name, "ann_file.json")
         self.image_info = {}
-
         self.pipeline = pipeline
         self.test_mode = test_mode
-
         self.use_gt_bbox = data_cfg['use_gt_bbox']
         self.bbox_file = data_cfg['bbox_file']
         self.det_bbox_thr = data_cfg.get('det_bbox_thr', 0.0)

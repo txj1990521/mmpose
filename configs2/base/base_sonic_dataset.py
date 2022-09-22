@@ -1,5 +1,3 @@
-import time
-
 custom_imports = dict(
     imports=['sonic_ai.sonic_keypoint_dataset',
              'sonic_ai.sonic_epoch_based_runner',
@@ -10,13 +8,17 @@ custom_imports = dict(
              'sonic_ai.sonic_after_run_hook',
              'sonic_ai.pipelines.dataset_pipeline',
              'sonic_ai.pipelines.sonic_shared_transform',
-             'sonic_ai.pipelines.sonic_TopDownGenerateTarget'], allow_failed_imports=True)
+             'sonic_ai.pipelines.sonic_TopDownGenerateTarget',
+             'sonic_ai.losses.sonic_multi_loss_factory'], allow_failed_imports=True)
 dataset_type = 'SonicKeyPointDataset'
 img_scale = (640, 640)
 Setdataset_channel = [
-    [0, 1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+     30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49],
 ]
-Setinference_channel = [0, 1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+Setinference_channel = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+                        26, 27, 28, 29,
+                        30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49]
 
 train_init_pipeline = [
     dict(type='CopyData2Local', target_dir='/data/公共数据缓存', run_rsync=True),  # 将训练数据保存到本地，使用rsync

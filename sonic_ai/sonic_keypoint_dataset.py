@@ -37,6 +37,7 @@ class SonicKeyPointDataset(TopDownCocoDataset):
             end=None,  # 数据的结束，0~1
             times=None,  # 重复次数
             ignore_labels=None,  # 屏蔽的label，默认为['屏蔽']
+
             dataset_info=None,
             test_mode=False,
             coco_style=True,
@@ -137,6 +138,7 @@ class SonicKeyPointDataset(TopDownCocoDataset):
                 continue
             if 'num_keypoints' in obj and obj['num_keypoints'] == 0:
                 continue
+
             joints_3d = np.zeros((num_joints, 3), dtype=np.float32)
             joints_3d_visible = np.zeros((num_joints, 3), dtype=np.float32)
 
@@ -151,9 +153,14 @@ class SonicKeyPointDataset(TopDownCocoDataset):
             center, scale = self._xywh2cs(*obj['clean_bbox'][:4])
             filedir = '/'.join(self.data['json_path_list'][img_id].replace('.json', '').split('/')[7:-1])
             if len(self.img_prefix) == 1:
+
                 image_file = osp.join(self.img_prefix[0], filedir, self.id2name[img_id])
+                # 临时测试
+                image_file = osp.join(self.img_prefix[0], self.id2name[img_id])
             else:
                 image_file = osp.join(self.img_prefix, filedir, self.id2name[img_id])
+                # 临时测试
+                image_file = osp.join(self.img_prefix, self.id2name[img_id])
             rec.append({
                 'image_file': image_file,
                 'center': center,

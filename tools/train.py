@@ -14,7 +14,8 @@ from mmcv.runner import get_dist_info, init_dist, set_random_seed
 from mmcv.utils import get_git_hash
 
 from mmpose import __version__
-from sonic_ai.api.sonic_api_train import init_random_seed, train_model
+# from sonic_ai.api.sonic_api_train import init_random_seed, train_model
+from mmpose.apis import init_random_seed, train_model
 from mmpose.datasets import build_dataset
 from mmpose.models import build_posenet
 from mmpose.utils import collect_env, get_root_logger, setup_multi_processes

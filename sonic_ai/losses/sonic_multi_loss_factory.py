@@ -3,10 +3,12 @@
 # Original licence: Copyright (c) Microsoft, under the MIT License.
 # ------------------------------------------------------------------------------
 
+import numpy as np
 import torch
 import torch.nn as nn
 
-from ..builder import LOSSES
+from mmpose.models.builder import LOSSES
+from mmpose.models.losses.multi_loss_factory import MultiLossFactory
 
 
 def _make_input(t, requires_grad=False, device=torch.device('cpu')):
@@ -58,10 +60,10 @@ class HeatmapLoss(nn.Module):
 
         if not self.supervise_empty:
             empty_mask = (gt.sum(dim=[2, 3], keepdim=True) > 0).float()
-            loss = ((pred - gt)**2) * empty_mask.expand_as(
+            loss = ((pred - gt) ** 2) * empty_mask.expand_as(
                 pred) * mask[:, None, :, :].expand_as(pred)
         else:
-            loss = ((pred - gt)**2) * mask[:, None, :, :].expand_as(pred)
+            loss = ((pred - gt) ** 2) * mask[:, None, :, :].expand_as(pred)
         loss = loss.mean(dim=3).mean(dim=2).mean(dim=1)
         return loss
 
@@ -79,7 +81,7 @@ class AELoss(nn.Module):
         self.loss_type = loss_type
 
     def singleTagLoss(self, pred_tag, joints):
-        """Associative embedding loss for one image.一幅图像的关联嵌入损失
+        """Associative embedding loss for one image.一张图像的关联嵌入损失
 
         Note:
             - heatmaps weight: W
@@ -102,7 +104,7 @@ class AELoss(nn.Module):
                 continue
             tmp = torch.stack(tmp)
             tags.append(torch.mean(tmp, dim=0))
-            pull = pull + torch.mean((tmp - tags[-1].expand_as(tmp))**2)
+            pull = pull + torch.mean((tmp - tags[-1].expand_as(tmp)) ** 2)
 
         num_tags = len(tags)
         if num_tags == 0:
@@ -161,7 +163,7 @@ class AELoss(nn.Module):
 
 
 @LOSSES.register_module()
-class MultiLossFactory(nn.Module):
+class Sonic_MultiLossFactory(MultiLossFactory):
     """Loss for bottom-up models.
 
     Args:
@@ -254,7 +256,27 @@ class MultiLossFactory(nn.Module):
             if self.heatmaps_loss[idx]:
                 heatmaps_pred = outputs[idx][:, :self.num_joints]
                 offset_feat = self.num_joints
-                heatmaps_loss = self.heatmaps_loss[idx](heatmaps_pred,
+                arr = heatmaps_pred.cpu().detach().numpy()
+                h1 = heatmaps[idx].cpu().detach().numpy()
+
+                w = arr.shape[2]
+                h = arr.shape[3]
+                target = np.zeros((arr.shape[0], self.num_joints, w, h), dtype=np.float32)
+                for i in range(arr.shape[0]):
+                    for j in range(arr.shape[1]):
+                        target[i][j][0:w, 0:h] = arr[i][j][0:w, 0:h]
+
+                target_tensor = torch.from_numpy(target)
+                target_tensor = target_tensor.cuda(heatmaps_pred.device.index)
+
+                # a = np.zeros((1, arr.shape[3]))
+                # for i in range(arr.shape[0]):
+                #     for j in range(arr.shape[1]):
+                #         arr[i] = np.append(arr[i][j], a, axis=0)
+                # heatmaps_loss = self.heatmaps_loss[idx](heatmaps_pred,
+                #                                         heatmaps[idx],
+                #                                         masks[idx])
+                heatmaps_loss = self.heatmaps_loss[idx](target_tensor,
                                                         heatmaps[idx],
                                                         masks[idx])
                 heatmaps_loss = heatmaps_loss * self.heatmaps_loss_factor[idx]

@@ -30,8 +30,9 @@ from sonic_ai.pipelines.utils_labelme import copy_json_and_img, shape_to_points,
 # 将lablelme的keypoint数据转化为coco数据格式
 class Labelme2COCOKeypoints:
 
-    def __init__(self, bbox_full_image=False, *args, **kwargs):
+    def __init__(self, bbox_full_image=False,*args, **kwargs):
         self.bbox_full_image = bbox_full_image
+
 
     def __call__(self, results, *args, **kwargs):
         category_list = results['category_list']
@@ -56,7 +57,6 @@ class Labelme2COCOKeypoints:
                   disable=disable) as pbar:
             for idx, data in enumerate(pbar):
                 filename = os.path.basename(data['imagePath'])
-
                 height, width = data['imageHeight'], data['imageWidth']
                 images.append(
                     dict(
@@ -70,9 +70,17 @@ class Labelme2COCOKeypoints:
                     group_id=None,
                     shape_type='rectangle',
                     flags={})
+                pointinfo = dict(
+                    mark='',
+                    label='bbox',
+                    points=[],
+                    group_id=None,
+                    shape_type='rectangle',
+                    flags={})
+
                 for shape in data['shapes']:
                     if shape['shape_type'] == 'point':
-                        # shape['points'][0][0] = width // 2
+                        shape['points'][0][0] = width // 2+50
                         keypoints_list.append(shape)
                     elif shape['shape_type'] == 'rectangle':  # bboxs
                         bboxes_list.append(shape)
@@ -96,8 +104,8 @@ class Labelme2COCOKeypoints:
                     category_id = category_list.index(
                         category_map[shape['label']])
                 if bboxes_list == []:
-                    d = 1
-                    bbox = [[width // 2 - d, int(height * 0.1)], [width // 2 + d, int(height * 0.9)]]
+                    d = 10
+                    bbox = [[width // 2+50 - d, int(height * 0)], [width // 2+50 + d, int(height * 1)]]
                     boxinfo['points'] = bbox
                     bboxes_list = [boxinfo]
 
@@ -282,7 +290,6 @@ class LoadLabelmeDataset:
             y['label']
             for x in json_data_list for y in x['shapes']
         }
-
         if len(set(all_ann_label_list) - set(category_map.keys())):
             logger.warning(
                 f'发现未知类别：{set(all_ann_label_list) - set(category_map.keys())}')
@@ -298,12 +305,11 @@ class LoadLabelmeDataset:
         new_data_list = [
             x for x in json_data_list
             if all(y['label'] in category_map
-                   for y in x['shapes']) and not all(
-                category_map[y['label']] in ignore_labels
-                for y in x['shapes'])
+                   for y in x['shapes']) and not all(category_map[y['label']] in ignore_labels for y in x['shapes'])
         ]
         logger.info(f'筛选后的样本数量：{len(new_data_list)}')
-        logger.info(f'路径样例：{new_data_list[0]["imagePath"]}')
+        # 临时测试
+        # logger.info(f'路径样例：{new_data_list[0]["imagePath"]}')
 
         results['json_data_list'] = new_data_list
         results['error_file_path'] = error_file_path

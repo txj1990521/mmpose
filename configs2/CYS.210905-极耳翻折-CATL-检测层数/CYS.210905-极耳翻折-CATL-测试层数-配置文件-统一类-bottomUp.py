@@ -1,34 +1,35 @@
 import time
-import os
-from sonic_ai.pipelines.init_pipeline import LoadCategoryList
+
 from configs2.base.base_sonic_dataset import Setinference_channel
 
 # 服务器路径
 _base_ = ['../base/default_runtime.py',
           '../base/schedule_sonic.py',
           '../base/base_sonic_dataset.py',
-          './赣锋骨骼点配置.py']
+          './CYS.210905-极耳翻折-CATL-测试层数骨骼点配置-统一类-统一编号.py']
 
 # 服务器路径
-project_name = 'CYS.210803-分条机CCD-惠州赣锋-关键点测试'
-dataset_path = f'/data2/5-标注数据/{project_name}'
-# label_path = os.path.dirname(os.path.realpath(f'{dataset_path}')) + '/label.ini'
+# project_name = 'CYS.210905-极耳翻折-CATL/切割10'
+# dataset_path = f'/data2/4-标注任务/{project_name}'
+project_name = 'BatteryPoleEar'
+dataset_path = f'/data/14-调试数据/txj/BatteryPoleEar/data/image'
 label_path = dataset_path + '/label.ini'
 dataset_path_list = [f'{dataset_path}']
-num_classes = len(
-    LoadCategoryList()(results={'label_path': label_path})['point_list'])
+# num_classes = len(
+#     LoadCategoryList()(results={'label_path': label_path})['point_list'])
+num_classes = 50
+
 current_channel = Setinference_channel[:num_classes]
 Setdataset_channel = [
     current_channel,
 ]
 Setinference_channel = current_channel
-save_model_path = '/data/14-调试数据/txj/CYS.210803-分条机CCD-惠州赣锋-关键点测试'
+save_model_path = '/data/14-调试数据/txj/CYS.210905-极耳翻折-CATL/'
 badcase_path = save_model_path
 timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
 total_epochs = 20
 checkpoint_config = dict(interval=10)
 evaluation = dict(interval=1000, metric='mAP', save_best='AP')
-
 
 channel_cfg = dict(
     num_output_channels=num_classes,
@@ -38,84 +39,106 @@ channel_cfg = dict(
 
 # model settings
 model = dict(
-    type='TopDown',
+    type='AssociativeEmbedding',
     pretrained='torchvision://resnet18',
     backbone=dict(type='ResNet', depth=18),
     keypoint_head=dict(
-        type='TopdownHeatmapSimpleHead',
+        type='AESimpleHead',
         in_channels=512,
-        out_channels=channel_cfg['num_output_channels'],
-        loss_keypoint=dict(type='JointsMSELoss', use_target_weight=False)),
+        num_joints=50,
+        tag_per_joint=True,
+        with_ae_loss=[True],
+        loss_keypoint=dict(
+            type='MultiLossFactory',
+            num_joints=50,
+            num_stages=1,
+            ae_loss_type='exp',
+            with_ae_loss=[True],
+            push_loss_factor=[0.001],
+            pull_loss_factor=[0.001],
+            with_heatmaps_loss=[True],
+            heatmaps_loss_factor=[1.0],
+        )),
     train_cfg=dict(),
     test_cfg=dict(
-        flip_test=False,
-        post_process='default',
-        shift_heatmap=True,
-        modulate_kernel=11))
+        num_joints=channel_cfg['dataset_joints'],
+        max_num_people=30,
+        scale_factor=[1],
+        with_heatmaps=[True],
+        with_ae=[True],
+        project2image=True,
+        align_corners=False,
+        nms_kernel=5,
+        nms_padding=2,
+        tag_per_joint=True,
+        detection_threshold=0.1,
+        tag_threshold=1,
+        use_detection_val=True,
+        ignore_too_much=False,
+        adjust=True,
+        refine=True,
+        flip_test=True))
 
 data_cfg = dict(
-    image_size=[64, 512],
-    heatmap_size=[16, 128],
-    # heatmap_size=[48, 64],
-    num_output_channels=channel_cfg['num_output_channels'],
+    image_size=512,
+    heatmap_size=[128],
+    base_size=256,
+    base_sigma=2,
     num_joints=channel_cfg['dataset_joints'],
     dataset_channel=channel_cfg['dataset_channel'],
     inference_channel=channel_cfg['inference_channel'],
-    soft_nms=False,
-    nms_thr=1.0,
-    oks_thr=0.9,
-    vis_thr=0.2,
-    use_gt_bbox=False,
-    det_bbox_thr=0.0,
-    bbox_file=None,
-    configFile=_base_,
+    num_scales=1,
+    scale_aware_sigma=False,
+
+    # heatmap_size=[48, 64],
+    # num_output_channels=channel_cfg['num_output_channels'],
+
+    # soft_nms=False,
+    # nms_thr=1.0,
+    # oks_thr=0.9,
+    # vis_thr=0.2,
+    # use_gt_bbox=False,
+    # det_bbox_thr=0.0,
+    # bbox_file=None,
+    # configFile=_base_,
 )
 
 train_pipeline = [
-    dict(type='LoadImageFromFile'),
-    # dict(type='TopDownGetBboxCenterScale',
-    #      padding=1.25),  # 将 bbox 从 [x, y, w, h] 转换为中心和缩放
-    # dict(type='TopDownRandomShiftBboxCenter', shift_factor=0.16,
-    #      prob=0.3),  # 随机移动 bbox 中心。
-    # dict(type='TopDownRandomFlip', flip_prob=0.5),  # 随机图像翻转的数据增强
-    # dict(
-    #     type='TopDownHalfBodyTransform',  # 半身数据增强
-    #     num_joints_half_body=8,
-    #     prob_half_body=0.3),
-    # dict(
-    #     type='TopDownGetRandomScaleRotation', rot_factor=40, scale_factor=0.5),
-    # # 随机缩放和旋转的数据增强，rot_factor旋转的角度，scale_factor缩放的数据增强系数
+    dict(type='LoadImageFromFile', color_type='unchanged'),
+    dict(type='CopyChannel', target_channel=3, overwrite_shape=True, add_noise=False),
     dict(type='TopDownAffine'),  # 仿射变换图像进行输入
     dict(type='ToTensor'),  # 将图像转换为pytorch的变量tensor
     dict(
         type='NormalizeTensor',  # 归一化
         mean=[0.485, 0.456, 0.406],
         std=[0.229, 0.224, 0.225]),
-    dict(type='TopDownGenerateTarget', sigma=2),  # 生成目标热图
+    dict(type='BottomUpGenerateTarget', sigma=2),  # 生成目标热图
     dict(
-        type='Collect', make_heatmap=True,
+        type='SonicCollect',
         keys=['img', 'target', 'target_weight'],
-        meta_keys=[
-            'image_file', 'joints_3d', 'joints_3d_visible', 'center', 'scale',
-            'rotation', 'bbox_score', 'flip_pairs'
-        ]),
+        meta_keys=[]),
 ]
 
 val_pipeline = [
-    dict(type='LoadImageFromFile'),
+    dict(type='LoadImageFromFile', color_type='unchanged'),
+    dict(type='CopyChannel', target_channel=3, overwrite_shape=True, add_noise=False),
+    dict(type='BottomUpGetImgSize', test_scale_factor=[1]),
     # dict(type='TopDownGetBboxCenterScale', padding=1.25),  # 将 bbox 从 [x, y, w, h] 转换为中心和缩放
-    dict(type='TopDownAffine'),  # 仿射变换图像进行输入
-    dict(type='ToTensor'),  # 将图像转换为pytorch的变量tensor
     dict(
-        type='NormalizeTensor',  # 归一化
-        mean=[0.485, 0.456, 0.406],
-        std=[0.229, 0.224, 0.225]),
+        type='BottomUpResizeAlign',
+        transforms=[
+            dict(type='ToTensor'),
+            dict(
+                type='NormalizeTensor',
+                mean=[0.485, 0.456, 0.406],
+                std=[0.229, 0.224, 0.225]),
+        ]),
     dict(
         type='Collect',
         keys=['img'],
         meta_keys=[
-            'image_file', 'center', 'scale', 'rotation', 'bbox_score',
-            'flip_pairs'
+            'image_file', 'aug_data', 'test_scale_factor', 'base_size',
+            'center', 'scale', 'flip_index'
         ]),
 ]
 
@@ -150,12 +173,13 @@ test_init_pipeline = [
 ]
 data = dict(
     persistent_workers=False,
-
-    samples_per_gpu=32,
-    workers_per_gpu=0,
+    samples_per_gpu=4,
+    workers_per_gpu=4,
+    train_dataloader=dict(samples_per_gpu=32),
     val_dataloader=dict(samples_per_gpu=32),
     test_dataloader=dict(samples_per_gpu=32),
     train=dict(
+        type='BottomUpCocoDataset',
         label_path=label_path,
         init_pipeline=train_init_pipeline,
         data_cfg=data_cfg,
@@ -164,6 +188,7 @@ data = dict(
         dataset_info={{_base_.dataset_info}}),
 
     val=dict(
+        type='BottomUpCocoDataset',
         label_path=label_path,
         init_pipeline=test_init_pipeline,
         dataset_path_list=dataset_path_list,
@@ -172,6 +197,7 @@ data = dict(
         dataset_info={{_base_.dataset_info}},
         timestamp=timestamp, ),
     test=dict(
+        type='BottomUpCocoDataset',
         label_path=label_path,
         init_pipeline=test_init_pipeline,
         dataset_path_list=dataset_path_list,
@@ -181,7 +207,7 @@ data = dict(
         timestamp=timestamp,
     ))
 log_config = dict(
-    interval=2,
+    interval=1,
     hooks=[
         dict(type='TextLoggerHook'),
         # dict(type='TensorboardLoggerHook')
@@ -196,6 +222,6 @@ LoadCategoryList = None
 lr_config = dict(
     policy='step',
     warmup='linear',
-    warmup_iters=5,
+    warmup_iters=10,
     warmup_ratio=0.001,
-    step=[17, 20])
+    step=[65, 70])

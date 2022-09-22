@@ -10,16 +10,23 @@ from mmpose.apis import (inference_bottom_up_pose_model, init_pose_model,
                          vis_pose_result)
 from mmpose.datasets import DatasetInfo
 
+project_name = 'BatteryPoleEar'
+dataset_path = f'/data/14-调试数据/txj/BatteryPoleEar/data_labelme/labelme_data_37_result/coco/train'
+file_root = dataset_path  # 当前文件夹下的所有图片
+Run_config = "configs2/CYS.210905-极耳翻折-CATL-检测层数/CYS.210905-极耳翻折-CATL-测试层数-BottomUp_配置文件_数量一致.py"
+Pose_checkpoint = '/data/txj/mmpose/work_dirs/CYS.210905-极耳翻折-CATL-测试层数-BottomUp_配置文件_数量一致/epoch_20.pth'
+Result_path = 'InferResult/' + project_name
 
 def main():
     """Visualize the demo images."""
+    global Run_config, Pose_checkpoint, Result_path
     parser = ArgumentParser()
-    parser.add_argument('pose_config', help='Config file for detection')
-    parser.add_argument('pose_checkpoint', help='Checkpoint file')
+    parser.add_argument('--pose_config', type=str, default=Run_config, help='Config file for detection')
+    parser.add_argument('--pose_checkpoint', type=str, default=Pose_checkpoint, help='Checkpoint file')
     parser.add_argument(
         '--img-path',
         type=str,
-        help='Path to an image file or a image folder.')
+        default=file_root, help='Path to an image file or a image folder.')
     parser.add_argument(
         '--show',
         action='store_true',
@@ -28,7 +35,7 @@ def main():
     parser.add_argument(
         '--out-img-root',
         type=str,
-        default='',
+        default=Result_path,
         help='Root of the output img file. '
         'Default not saving the visualization images.')
     parser.add_argument(

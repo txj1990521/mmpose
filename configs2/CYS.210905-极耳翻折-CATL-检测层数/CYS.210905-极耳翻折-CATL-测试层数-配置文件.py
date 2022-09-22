@@ -16,6 +16,7 @@ label_path = dataset_path + '/label.ini'
 dataset_path_list = [f'{dataset_path}']
 num_classes = len(
     LoadCategoryList()(results={'label_path': label_path})['point_list'])
+
 current_channel = Setinference_channel[:num_classes]
 Setdataset_channel = [
     current_channel,
@@ -24,7 +25,7 @@ Setinference_channel = current_channel
 save_model_path = '/data/14-调试数据/txj/CYS.210905-极耳翻折-CATL/'
 badcase_path = save_model_path
 timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
-total_epochs = 200
+total_epochs = 70
 checkpoint_config = dict(interval=10)
 evaluation = dict(interval=1000, metric='mAP', save_best='AP')
 
@@ -52,8 +53,8 @@ model = dict(
         modulate_kernel=11))
 
 data_cfg = dict(
-    image_size=[128, 2560],
-    heatmap_size=[32, 640],
+    image_size=[1024, 2560],
+    heatmap_size=[256, 640],
     # heatmap_size=[48, 64],
     num_output_channels=channel_cfg['num_output_channels'],
     num_joints=channel_cfg['dataset_joints'],
@@ -118,7 +119,7 @@ train_init_pipeline = [
     dict(type='LoadLabelmeDataset'),
     dict(type='StatCategoryCounter'),
     dict(type='CopyData', times=1),
-    dict(type='Labelme2COCOKeypoints', bbox_full_image=True),
+    dict(type='Labelme2COCOKeypoints', bbox_full_image=False),
     dict(type='CopyErrorPath', copy_error_file_path='/data/14-调试数据/txj'),
     dict(type='SaveJson'),
 ]
@@ -132,7 +133,7 @@ test_init_pipeline = [
     dict(type='LoadLabelmeDataset'),
     dict(type='StatCategoryCounter'),
     dict(type='CopyData', times=1),
-    dict(type='Labelme2COCOKeypoints', bbox_full_image=True),
+    dict(type='Labelme2COCOKeypoints', bbox_full_image=False),
     dict(type='CopyErrorPath', copy_error_file_path='/data/14-调试数据/txj'),
     dict(type='SaveJson'),
 ]
@@ -183,6 +184,6 @@ LoadCategoryList = None
 lr_config = dict(
     policy='step',
     warmup='linear',
-    warmup_iters=50,
+    warmup_iters=10,
     warmup_ratio=0.001,
-    step=[170, 200])
+    step=[65, 70])

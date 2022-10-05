@@ -164,8 +164,8 @@ test_pipeline = val_pipeline
 
 data_root = 'data/crowdpose'
 data = dict(
-    workers_per_gpu=2,
-    train_dataloader=dict(samples_per_gpu=16),
+    workers_per_gpu=0,
+    train_dataloader=dict(samples_per_gpu=4),
     val_dataloader=dict(samples_per_gpu=1),
     test_dataloader=dict(samples_per_gpu=1),
     train=dict(

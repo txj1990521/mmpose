@@ -93,7 +93,7 @@ train_pipeline = [
         std=[0.229, 0.224, 0.225]),
     dict(type='TopDownGenerateTarget', sigma=2),  # 生成目标热图
     dict(
-        type='Collect', make_heatmap=True,
+        type='Collect',
         keys=['img', 'target', 'target_weight'],
         meta_keys=[
             'image_file', 'joints_3d', 'joints_3d_visible', 'center', 'scale',

@@ -9,7 +9,7 @@ _base_ = ['../base/default_runtime.py',
           '../base/base_sonic_dataset.py',
           './CYS.220317-雅康-欣旺达切叠一体机-骨骼点配置.py']
 # 服务器路径
-project_name = 'CYS.220317-雅康-欣旺达切叠一体机-定位/实验2-关键点/20110810-关键点'
+project_name = 'CYS.220317-雅康-欣旺达切叠一体机-定位/实验2-关键点/'
 dataset_path = f'/data2/5-标注数据/{project_name}'
 label_path = dataset_path + '/label.ini'
 dataset_path_list = [f'{dataset_path}']
@@ -42,7 +42,7 @@ model = dict(
         type='TopdownHeatmapSimpleHead',
         in_channels=512,
         out_channels=channel_cfg['num_output_channels'],
-        loss_keypoint=dict(type='JointsMSELoss', use_target_weight=True)),
+        loss_keypoint=dict(type='JointsMSELoss', use_target_weight=False)),
     train_cfg=dict(),
     test_cfg=dict(
         flip_test=False,
@@ -88,7 +88,7 @@ train_pipeline = [
         std=[0.229, 0.224, 0.225]),
     dict(type='TopDownGenerateTarget', sigma=2),  # 生成目标热图
     dict(
-        type='SonicCollect',
+        type='Collect',
         keys=['img', 'target', 'target_weight'],
         meta_keys=[
             'image_file', 'joints_3d', 'joints_3d_visible', 'center', 'scale',
@@ -147,7 +147,7 @@ test_init_pipeline = [
 data = dict(
     persistent_workers=False,
     samples_per_gpu=16,
-    workers_per_gpu=0,
+    workers_per_gpu=4,
     val_dataloader=dict(samples_per_gpu=32),
     test_dataloader=dict(samples_per_gpu=32),
     train=dict(
@@ -191,6 +191,6 @@ LoadCategoryList = None
 lr_config = dict(
     policy='step',
     warmup='linear',
-    warmup_iters=10,
+    warmup_iters=5,
     warmup_ratio=0.001,
     step=[17, 20])

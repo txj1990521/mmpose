@@ -465,8 +465,7 @@ class TopDownGenerateTarget:
 
                     target[joint_id][img_y[0]:img_y[1], img_x[0]:img_x[1]] = \
                         g[g_y[0]:g_y[1], g_x[0]:g_x[1]]
-                # matplotlib.image.imsave(
-                #     'TrainMap/' + imageFile.split('/')[-2] + '/' + filename + str(joint_id) + '_.png', target[joint_id])
+
         if use_different_joint_weights:
             target_weight = np.multiply(target_weight, joint_weights)
 

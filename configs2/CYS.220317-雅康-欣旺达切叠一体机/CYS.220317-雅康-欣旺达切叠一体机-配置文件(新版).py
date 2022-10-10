@@ -9,7 +9,7 @@ _base_ = ['../base/default_runtime.py',
           '../base/base_sonic_dataset.py',
           './CYS.220317-雅康-欣旺达切叠一体机-骨骼点配置.py']
 # 服务器路径
-project_name = 'CYS.220317-雅康-欣旺达切叠一体机-定位/实验2-关键点/20110810-关键点/'
+project_name = 'CYS.220317-雅康-欣旺达切叠一体机-定位/实验2-关键点/20110810-关键点'
 dataset_path = f'/data2/5-标注数据/{project_name}'
 label_path = dataset_path + '/label.ini'
 dataset_path_list = [f'{dataset_path}']
@@ -20,7 +20,7 @@ Setdataset_channel = [
     current_channel,
 ]
 Setinference_channel = current_channel
-save_model_path = '/data/14-调试数据/txj/CYS.220317-雅康-欣旺达切叠一体机-定位/02-关键点'
+save_model_path = '/data/14-调试数据/txj/CYS.220317-雅康-欣旺达切叠一体机-定位/02-关键点/'
 badcase_path = save_model_path
 timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
 total_epochs = 20
@@ -69,7 +69,7 @@ data_cfg = dict(
 )
 
 train_pipeline = [
-    dict(type='LoadImageFromFile'),
+    dict(type='LoadImageFromFile', ),
     # dict(type='TopDownGetBboxCenterScale',
     #      padding=1.25),  # 将 bbox 从 [x, y, w, h] 转换为中心和缩放
     # dict(type='TopDownRandomShiftBboxCenter', shift_factor=0.16,
@@ -97,7 +97,7 @@ train_pipeline = [
 ]
 
 val_pipeline = [
-    dict(type='LoadImageFromFile'),
+    dict(type='LoadImageFromFile', ),
     # dict(type='CopyChannel', target_channel=3, overwrite_shape=True, add_noise=False),
     # dict(type='TopDownGetBboxCenterScale', padding=1.25),  # 将 bbox 从 [x, y, w, h] 转换为中心和缩放
     dict(type='TopDownAffine'),  # 仿射变换图像进行输入
@@ -147,7 +147,7 @@ test_init_pipeline = [
 data = dict(
     persistent_workers=False,
     samples_per_gpu=16,
-    workers_per_gpu=4,
+    workers_per_gpu=0,
     val_dataloader=dict(samples_per_gpu=32),
     test_dataloader=dict(samples_per_gpu=32),
     train=dict(

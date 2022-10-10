@@ -70,17 +70,17 @@ class Labelme2COCOKeypoints:
                     group_id=None,
                     shape_type='rectangle',
                     flags={})
-                pointinfo = dict(
-                    mark='',
-                    label='bbox',
-                    points=[],
-                    group_id=None,
-                    shape_type='rectangle',
-                    flags={})
+                # pointinfo = dict(
+                #     mark='',
+                #     label='bbox',
+                #     points=[],
+                #     group_id=None,
+                #     shape_type='rectangle',
+                #     flags={})
 
                 for shape in data['shapes']:
                     if shape['shape_type'] == 'point':
-                        shape['points'][0][0] = width // 2+50
+                        # shape['points'][0][0] = width // 2+50
                         keypoints_list.append(shape)
                     elif shape['shape_type'] == 'rectangle':  # bboxs
                         bboxes_list.append(shape)
@@ -104,8 +104,9 @@ class Labelme2COCOKeypoints:
                     category_id = category_list.index(
                         category_map[shape['label']])
                 if bboxes_list == []:
-                    d = 10
-                    bbox = [[width // 2+50 - d, int(height * 0)], [width // 2+50 + d, int(height * 1)]]
+                    # d = 10
+                    # bbox = [[width // 2+50 - d, int(height * 0)], [width // 2+50 + d, int(height * 1)]]
+                    bbox = [[0, 0], [width, height]]
                     boxinfo['points'] = bbox
                     bboxes_list = [boxinfo]
 

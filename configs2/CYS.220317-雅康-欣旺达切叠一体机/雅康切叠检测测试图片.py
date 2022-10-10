@@ -2,22 +2,24 @@
 import os
 import sys
 import warnings
-import cv2
-from tqdm import tqdm
 from argparse import ArgumentParser
+
+from tqdm import tqdm
+
 from mmpose.apis import (inference_top_down_pose_model, init_pose_model,
                          vis_pose_result)
 from mmpose.datasets import DatasetInfo
 
-project_name = 'CYS.220652-温州瑞浦顶盖焊检测/02-关键点/A2'
+project_name = 'CYS.220317-雅康-欣旺达切叠一体机-定位/实验2-关键点'
 dataset_path = f'/data2/5-标注数据/{project_name}'
-file_root = dataset_path  # 当前文件夹下的所有图片
-Run_config = "configs2/CYS.220652-温州瑞浦顶盖焊检测/温州瑞浦顶盖焊检测配置文件.py"
-Pose_checkpoint = '/data/14-调试数据/txj/CYS.220301-密封钉检测/02-关键点/CYS.220652-温州瑞浦顶盖焊检测/02-关键点/20220905_165119.pth'
+file_root = dataset_path + '/20110810-关键点'  # 当前文件夹下的所有图片
+Run_config = "configs2/CYS.220317-雅康-欣旺达切叠一体机/CYS.220317-雅康-欣旺达切叠一体机-配置文件(新版).py"
+Pose_checkpoint = '/data/14-调试数据/txj/CYS.220317-雅康-欣旺达切叠一体机-定位/02-关键点/CYS.220317-雅康-欣旺达切叠一体机-定位/实验2-关键点/20110810-关键点/20221010_100941.pth'
+# Pose_checkpoint = '/data/14-调试数据/txj/CYS.220317-雅康-欣旺达切叠一体机/CYS.220317-雅康-欣旺达切叠一体机-定位/实验2-关键点/20220826_110526.pth'
 
 Result_path = 'InferResult/' + project_name
 # bbox = [457.5, 0, 10, 613]
-bbox = [0, 0, 600, 5120]
+bbox = [0, 0, 1024, 1024]
 
 
 def main():

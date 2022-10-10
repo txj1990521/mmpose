@@ -1,5 +1,6 @@
 import time
-
+log_level = 'INFO'  # 日志记录级别
+custom_imports = dict(imports=['sonic_ai.losses.sonic_multi_loss_factory'], allow_failed_imports=True)
 _base_ = [
     '/data/txj/mmpose/configs/_base_/default_runtime.py',
     './CYS.210905-极耳翻折-CATL-测试层数骨骼点配置-统一类-统一编号-37.py'
@@ -10,6 +11,7 @@ timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
 checkpoint_config = dict(interval=5)
 evaluation = dict(interval=100, metric='mAP', save_best='AP')
 
+num_people = 1
 optimizer = dict(
     type='Adam',
     lr=0.0015,
@@ -25,7 +27,7 @@ lr_config = dict(
 total_epochs = 20
 channel_cfg = dict(
     num_output_channels=1,
-    dataset_joints=1,
+    dataset_joints=50,
     # dataset_channel=[
     #     [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
     #      30, 31, 32, 33, 34, 35, 36],
@@ -85,7 +87,7 @@ model = dict(
     keypoint_head=dict(
         type='AEHigherResolutionHead',
         in_channels=32,
-        num_joints=37,
+        num_joints=50,
         tag_per_joint=True,
         extra=dict(final_conv_kernel=1, ),
         num_deconv_layers=1,
@@ -95,8 +97,8 @@ model = dict(
         cat_output=[True],
         with_ae_loss=[True, False],
         loss_keypoint=dict(
-            type='MultiLossFactory',
-            num_joints=37,
+            type='Sonic_MultiLossFactory',
+            num_joints=50,
             num_stages=2,
             ae_loss_type='exp',
             with_ae_loss=[True, False],
@@ -108,7 +110,7 @@ model = dict(
     train_cfg=dict(),
     test_cfg=dict(
         num_joints=channel_cfg['dataset_joints'],
-        max_num_people=2,
+        max_num_people=num_people,
         scale_factor=[1],
         with_heatmaps=[True, True],
         with_ae=[True],
@@ -142,7 +144,7 @@ train_pipeline = [
     dict(
         type='BottomUpGenerateTarget',
         sigma=2,
-        max_num_people=2,
+        max_num_people=num_people,
     ),
     dict(
         type='Collect',
@@ -175,7 +177,7 @@ test_pipeline = val_pipeline
 
 data_root = '/data/14-调试数据/txj/BatteryPoleEar/data_labelme/labelme_data_37_result/coco'
 data = dict(
-    workers_per_gpu=2,
+    workers_per_gpu=0,
     train_dataloader=dict(samples_per_gpu=4),
     val_dataloader=dict(samples_per_gpu=1),
     test_dataloader=dict(samples_per_gpu=1),
@@ -205,9 +207,9 @@ data = dict(
 #     save_model_path=f"{save_model_path}/{project_name}",
 #     timestamp=timestamp,
 #     max_epochs=1)
-# log_config = dict(
-#     interval=1,
-#     hooks=[
-#         dict(type='TextLoggerHook'),
-#         # dict(type='TensorboardLoggerHook')
-#     ])
+log_config = dict(
+    interval=1,
+    hooks=[
+        dict(type='TextLoggerHook'),
+        # dict(type='TensorboardLoggerHook')
+    ])

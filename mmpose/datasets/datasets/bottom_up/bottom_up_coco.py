@@ -116,7 +116,7 @@ class BottomUpCocoDataset(Kpt2dSviewRgbImgBottomUpDataset):
     def _get_joints(self, anno):
         """Get joints for all people in an image."""
         num_people = len(anno)
-
+        self.ann_info['num_joints'] = 50
         if self.ann_info['scale_aware_sigma']:
             joints = np.zeros((num_people, self.ann_info['num_joints'], 4),
                               dtype=np.float32)
@@ -125,8 +125,10 @@ class BottomUpCocoDataset(Kpt2dSviewRgbImgBottomUpDataset):
                               dtype=np.float32)
 
         for i, obj in enumerate(anno):
-            joints[i, :, :3] = \
-                np.array(obj['keypoints']).reshape([-1, 3])
+            keypoints_tmp = np.array(obj['keypoints']).reshape([-1, 3])
+            for j in range(len(joints[0]) - len(keypoints_tmp)):
+                keypoints_tmp = np.row_stack((keypoints_tmp, np.array([0, 0, 0])))
+            joints[i, :, :3] = keypoints_tmp
             if self.ann_info['scale_aware_sigma']:
                 # get person box
                 box = obj['bbox']

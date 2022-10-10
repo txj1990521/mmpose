@@ -152,15 +152,9 @@ class SonicKeyPointDataset(TopDownCocoDataset):
 
             center, scale = self._xywh2cs(*obj['clean_bbox'][:4])
             filedir = '/'.join(self.data['json_path_list'][img_id].replace('.json', '').split('/')[7:-1])
-            if len(self.img_prefix) == 1:
-
-                image_file = osp.join(self.img_prefix[0], filedir, self.id2name[img_id])
-                # 临时测试
-                image_file = osp.join(self.img_prefix[0], self.id2name[img_id])
-            else:
-                image_file = osp.join(self.img_prefix, filedir, self.id2name[img_id])
-                # 临时测试
-                image_file = osp.join(self.img_prefix, self.id2name[img_id])
+            # if len(self.img_prefix) == 1:
+            #     image_file = osp.join(self.img_prefix[0], filedir, self.id2name[img_id])
+            image_file = osp.join(self.img_prefix[0], self.id2name[img_id])
             rec.append({
                 'image_file': image_file,
                 'center': center,

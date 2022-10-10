@@ -1,8 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-import warnings
 
 import cv2
-
 import numpy as np
 
 from mmpose.core.bbox import bbox_xywh2cs
@@ -10,8 +8,6 @@ from mmpose.core.post_processing import (affine_transform, fliplr_joints,
                                          get_affine_transform, get_warp_matrix,
                                          warp_affine_joints)
 from mmpose.datasets.builder import PIPELINES
-import matplotlib
-import json
 
 
 @PIPELINES.register_module()

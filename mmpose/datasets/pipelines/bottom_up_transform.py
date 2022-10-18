@@ -399,17 +399,19 @@ class BottomUpRandomFlip:
 
 @PIPELINES.register_module()
 class BottomUpRandomAffine:
-    """Data augmentation with random scaling & rotating.
+    """Data augmentation with random scaling & rotating.随机缩放和旋转的数据增强。
 
     Args:
-        rot_factor (int): Rotating to [-rotation_factor, rotation_factor]
-        scale_factor (float): Scaling to [1-scale_factor, 1+scale_factor]
-        scale_type: wrt ``long`` or ``short`` length of the image.
-        trans_factor: Translation factor.
-        use_udp (bool): To use unbiased data processing.
+        rot_factor (int): Rotating to [-rotation_factor, rotation_factor]:rot_factor (int): 旋转到 [-rotation_factor, rotation_factor]
+        scale_factor (float): Scaling to [1-scale_factor, 1+scale_factor]:scale_factor (float): 缩放到 [1-scale_factor, 1+scale_factor]
+        scale_type: wrt ``long`` or ``short`` length of the image.: scale_type：图像的“长”或“短”长度。
+        trans_factor: Translation factor.:trans_factor：翻译因子。
+        use_udp (bool): To use unbiased data processing.:use_udp (bool)：使用无偏数据处理。
             Paper ref: Huang et al. The Devil is in the Details: Delving into
             Unbiased Data Processing for Human Pose Estimation (CVPR 2020).
+
     """
+
 
     def __init__(self,
                  rot_factor,
@@ -655,7 +657,7 @@ class BottomUpGenerateTarget:
 
         results['masks'], results['joints'] = mask_list, joints_list
         results['targets'] = target_list
-
+        #临时测试
         return results
 
 

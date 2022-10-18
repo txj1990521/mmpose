@@ -29,7 +29,7 @@ def split_ae_outputs(outputs, num_joints, with_heatmaps, with_ae,
     heatmaps = []
     tags = []
 
-    # aggregate heatmaps from different stages
+    # aggregate heatmaps from different stages来自不同阶段的聚合热图
     for i, output in enumerate(outputs):
         if i not in select_output_index:
             continue
@@ -171,7 +171,8 @@ def aggregate_stage_flip(feature_maps,
                          aggregate_stage='concat',
                          aggregate_flip='average'):
     """Inference the model to get multi-stage outputs (heatmaps & tags), and
-    resize them to base sizes.
+    resize them to base sizes.推断模型以获得多阶段输出（热图和标签），以及
+    将它们调整为基本尺寸。
 
     Args:
         feature_maps (list[Tensor]): feature_maps can be heatmaps,

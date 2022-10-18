@@ -9,8 +9,8 @@ _base_ = [
 save_model_path = '/data/14-调试数据/txj/CYS.210905-极耳翻折-CATL/'
 project_name = 'BatteryPoleEar'
 timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
-checkpoint_config = dict(interval=5)
-evaluation = dict(interval=100, metric='mAP', save_best='AP')
+checkpoint_config = dict(interval=50)
+evaluation = dict(interval=10000, metric='mAP', save_best='AP')
 
 num_people = 50
 optimizer = dict(
@@ -22,10 +22,10 @@ optimizer_config = dict(grad_clip=None)
 lr_config = dict(
     policy='step',
     warmup='linear',
-    warmup_iters=55,
+    warmup_iters=500,
     warmup_ratio=0.001,
-    step=[17, 20])
-total_epochs = 20
+    step=[200, 260])
+total_epochs = 300
 channel_cfg = dict(
     num_output_channels=1,
     dataset_joints=1,
@@ -43,11 +43,11 @@ data_cfg = dict(
     image_size=1024,
     base_size=512,
     base_sigma=2,
-    heatmap_size=[256, 512],
+    heatmap_size=[256],
     num_joints=channel_cfg['dataset_joints'],
     dataset_channel=channel_cfg['dataset_channel'],
     inference_channel=channel_cfg['inference_channel'],
-    num_scales=2,
+    num_scales=1,
     scale_aware_sigma=False,
 )
 
@@ -86,47 +86,42 @@ model = dict(
                 num_channels=(32, 64, 128, 256))),
     ),
     keypoint_head=dict(
-        type='AEHigherResolutionHead',
+        type='AESimpleHead',
         in_channels=32,
         num_joints=50,
+        num_deconv_layers=0,
         tag_per_joint=True,
+        with_ae_loss=[True],
         extra=dict(final_conv_kernel=1, ),
-        num_deconv_layers=1,
-        num_deconv_filters=[32],
-        num_deconv_kernels=[4],
-        num_basic_blocks=4,
-        cat_output=[True],
-        with_ae_loss=[True, False],
         loss_keypoint=dict(
-            type='Sonic_MultiLossFactory',
+            type='MultiLossFactory',
             num_joints=50,
-            num_stages=2,
+            num_stages=1,
             ae_loss_type='exp',
-            with_ae_loss=[True, False],
-            push_loss_factor=[0.01, 0.01],
-            pull_loss_factor=[0.001, 0.001],
-            with_heatmaps_loss=[True, True],
-            heatmaps_loss_factor=[1.0, 1.0],
-        )),
+            with_ae_loss=[True],
+            push_loss_factor=[0.01],
+            pull_loss_factor=[0.001],
+            with_heatmaps_loss=[True],
+            heatmaps_loss_factor=[1.0])),
     train_cfg=dict(),
     test_cfg=dict(
         num_joints=50,
         max_num_people=50,
         scale_factor=[1],
-        with_heatmaps=[True, True],
+        with_heatmaps=[True],
         with_ae=[True],
         project2image=True,
         align_corners=False,
         nms_kernel=5,
         nms_padding=2,
         tag_per_joint=True,
-        detection_threshold=0.1,
+        detection_threshold=0.5,
         tag_threshold=1,
         use_detection_val=True,
         ignore_too_much=False,
         adjust=True,
         refine=True,
-        flip_test=True))
+        flip_test=False))
 
 train_pipeline = [
     dict(type='LoadImageFromFile'),
@@ -148,7 +143,7 @@ train_pipeline = [
         max_num_people=num_people,
     ),
     dict(
-        type='SonicCollect',
+        type='Collect',
         keys=['img', 'joints', 'targets', 'masks'],
         meta_keys=[]),
 ]
@@ -176,10 +171,10 @@ val_pipeline = [
 
 test_pipeline = val_pipeline
 
-data_root = '/data/14-调试数据/txj/BatteryPoleEar/data_labelme/labelme_data_37_result/coco'
+data_root = '/data/14-调试数据/txj/BatteryPoleEar/data/line_reduce_image_result/coco'
 data = dict(
-    workers_per_gpu=0,
-    train_dataloader=dict(samples_per_gpu=2),
+    workers_per_gpu=2,
+    train_dataloader=dict(samples_per_gpu=24),
     val_dataloader=dict(samples_per_gpu=2),
     test_dataloader=dict(samples_per_gpu=2),
     train=dict(

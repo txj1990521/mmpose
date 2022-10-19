@@ -55,6 +55,7 @@ class SonicCollect(Collect):
             meta['bbox_id'] = results['bbox_id']
 
         data[self.meta_name] = DC(meta, cpu_only=True)
+
         data_tmp = data
         images = results['img']
         meta_tmp = meta

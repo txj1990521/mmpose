@@ -481,7 +481,7 @@ class BottomUpRandomAffine:
 
         img_scale = np.array([width, height], dtype=np.float32)
         aug_scale = np.random.random() * (self.max_scale - self.min_scale) \
-            + self.min_scale
+                    + self.min_scale
         img_scale *= aug_scale
         aug_rot = (np.random.random() * 2 - 1) * self.max_rotation
 
@@ -545,15 +545,13 @@ class BottomUpRandomAffine:
                     scale=scale / 200.0,
                     rot=aug_rot,
                     output_size=_output_size)
-                mask[i] = cv2.warpAffine(
-                    (mask[i] * 255).astype(np.uint8), mat_output,
-                    (int(_output_size[0]), int(_output_size[1]))) / 255
+                mask[i] = cv2.warpAffine((mask[i] * 255).astype(np.uint8), mat_output,
+                                         (int(_output_size[0]), int(_output_size[1]))) / 255
                 mask[i] = (mask[i] > 0.5).astype(np.float32)
 
                 joints[i][:, :, 0:2] = \
                     warp_affine_joints(joints[i][:, :, 0:2], mat_output)
-                if results['ann_info']['scale_aware_sigma']:
-                    joints[i][:, :, 3] = joints[i][:, :, 3] / aug_scale
+                if results['ann_info']['scale_aware_sigma']: joints[i][:, :, 3] = joints[i][:, :, 3] / aug_scale
 
             scale = self._get_scale(img_scale, self.input_size)
             mat_input = get_affine_transform(

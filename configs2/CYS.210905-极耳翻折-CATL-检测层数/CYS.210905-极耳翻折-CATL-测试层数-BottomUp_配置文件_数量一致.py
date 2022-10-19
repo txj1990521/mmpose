@@ -10,7 +10,7 @@ save_model_path = '/data/14-调试数据/txj/CYS.210905-极耳翻折-CATL/'
 project_name = 'BatteryPoleEar'
 timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
 checkpoint_config = dict(interval=5)
-evaluation = dict(interval=100, metric='mAP', save_best='AP')
+evaluation = dict(interval=10000, metric='mAP', save_best='AP')
 
 num_people = 50
 optimizer = dict(
@@ -24,8 +24,8 @@ lr_config = dict(
     warmup='linear',
     warmup_iters=55,
     warmup_ratio=0.001,
-    step=[17, 20])
-total_epochs = 20
+    step=[170, 200])
+total_epochs = 200
 channel_cfg = dict(
     num_output_channels=1,
     dataset_joints=1,
@@ -148,7 +148,7 @@ train_pipeline = [
         max_num_people=num_people,
     ),
     dict(
-        type='SonicCollect',
+        type='Collect',
         keys=['img', 'joints', 'targets', 'masks'],
         meta_keys=[]),
 ]
@@ -176,7 +176,7 @@ val_pipeline = [
 
 test_pipeline = val_pipeline
 
-data_root = '/data/14-调试数据/txj/BatteryPoleEar/data_labelme/labelme_data_37_result/coco'
+data_root = '/data/14-调试数据/txj/BatteryPoleEar/data/line_reduce_image_result/coco'
 data = dict(
     workers_per_gpu=0,
     train_dataloader=dict(samples_per_gpu=2),

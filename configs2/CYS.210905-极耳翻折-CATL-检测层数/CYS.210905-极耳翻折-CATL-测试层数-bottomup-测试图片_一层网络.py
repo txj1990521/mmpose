@@ -12,10 +12,10 @@ from mmpose.apis import (inference_bottom_up_pose_model, init_pose_model)
 from mmpose.datasets import DatasetInfo
 
 project_name = 'BatteryPoleEar'
-dataset_path = f'/data/14-调试数据/txj/BatteryPoleEar/data/line_reduce_image_result/coco/train'
+dataset_path = f'/data/14-调试数据/txj/BatteryPoleEar/data/blue_reduce_image_result/coco/train'
 file_root = dataset_path  # 当前文件夹下的所有图片
-Run_config = "configs2/CYS.210905-极耳翻折-CATL-检测层数/CYS.210905-极耳翻折-CATL-测试层数-BottomUp_配置文件_数量一致.py"
-Pose_checkpoint = '/data/txj/mmpose/work_dirs/CYS.210905-极耳翻折-CATL-测试层数-BottomUp_配置文件_数量一致/epoch_200.pth'
+Run_config = "configs2/CYS.210905-极耳翻折-CATL-检测层数/CYS.210905-极耳翻折-CATL-测试层数-BottomUp_配置文件_数量一致_一层检测网络.py"
+Pose_checkpoint = '/data/txj/mmpose/work_dirs/CYS.210905-极耳翻折-CATL-测试层数-BottomUp_配置文件_数量一致_一层检测网络/epoch_500.pth'
 Result_path = 'InferResult/' + project_name
 
 

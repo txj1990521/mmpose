@@ -22,10 +22,10 @@ optimizer_config = dict(grad_clip=None)
 lr_config = dict(
     policy='step',
     warmup='linear',
-    warmup_iters=500,
+    warmup_iters=55,
     warmup_ratio=0.001,
-    step=[200, 260])
-total_epochs = 300
+    step=[350, 370])
+total_epochs = 500
 channel_cfg = dict(
     num_output_channels=1,
     dataset_joints=1,
@@ -40,10 +40,13 @@ channel_cfg = dict(
     inference_channel=[0])
 
 data_cfg = dict(
-    image_size=1024,
+    # image_size=1024,
+    # base_size=512,
+    # heatmap_size=[256],
+    image_size=[256, 5120],
     base_size=512,
+    heatmap_size=[[64, 1280]],
     base_sigma=2,
-    heatmap_size=[256],
     num_joints=channel_cfg['dataset_joints'],
     dataset_channel=channel_cfg['dataset_channel'],
     inference_channel=channel_cfg['inference_channel'],
@@ -171,7 +174,7 @@ val_pipeline = [
 
 test_pipeline = val_pipeline
 
-data_root = '/data/14-调试数据/txj/BatteryPoleEar/data/line_reduce_image_result/coco'
+data_root = '/data/14-调试数据/txj/BatteryPoleEar/data/blue_reduce_image_result/coco'
 data = dict(
     workers_per_gpu=2,
     train_dataloader=dict(samples_per_gpu=24),

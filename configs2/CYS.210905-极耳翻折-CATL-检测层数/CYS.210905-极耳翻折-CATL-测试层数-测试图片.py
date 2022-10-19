@@ -11,10 +11,10 @@ from mmpose.datasets import DatasetInfo
 # project_name = 'CYS.210905-极耳翻折-CATL/切割10'
 # dataset_path = f'/data2/4-标注任务/{project_name}'
 project_name = 'BatteryPoleEar'
-dataset_path = f'/data/14-调试数据/txj/BatteryPoleEar/data_labelme/labelme_data_37_result/coco/train'
+dataset_path = f'/data/14-调试数据/txj/BatteryPoleEar/data/image'
 file_root = dataset_path  # 当前文件夹下的所有图片
-Run_config = "configs2/CYS.210905-极耳翻折-CATL-检测层数/CYS.210905-极耳翻折-CATL-测试层数-BottomUp_配置文件_数量一致.py"
-Pose_checkpoint = '/data/txj/mmpose/work_dirs/CYS.210905-极耳翻折-CATL-测试层数-BottomUp_配置文件_数量一致/epoch_20.pth'
+Run_config = "configs2/CYS.210905-极耳翻折-CATL-检测层数/CYS.210905-极耳翻折-CATL-测试层数-配置文件-统一类.py"
+Pose_checkpoint = '/data/txj/mmpose/work_dirs/CYS.210905-极耳翻折-CATL-测试层数-配置文件-统一类/epoch_70.pth'
 
 Result_path = 'InferResult/' + project_name
 bbox = [0, 0, 5120, 5120]

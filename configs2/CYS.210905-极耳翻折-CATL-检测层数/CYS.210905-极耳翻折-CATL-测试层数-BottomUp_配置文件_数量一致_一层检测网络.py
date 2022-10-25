@@ -118,7 +118,7 @@ model = dict(
         nms_kernel=5,
         nms_padding=2,
         tag_per_joint=True,
-        detection_threshold=0.5,
+        detection_threshold=0.9,
         tag_threshold=1,
         use_detection_val=True,
         ignore_too_much=False,
@@ -174,7 +174,7 @@ val_pipeline = [
 
 test_pipeline = val_pipeline
 
-data_root = '/data/14-调试数据/txj/BatteryPoleEar/data/blue_reduce_image_result/coco'
+data_root = '/data/14-调试数据/txj/BatteryPoleEar/data/line_reduce_image_result/coco'
 data = dict(
     workers_per_gpu=2,
     train_dataloader=dict(samples_per_gpu=24),

@@ -7,12 +7,13 @@ from argparse import ArgumentParser
 
 import cv2
 import mmcv
+import numpy as np
 
 from mmpose.apis import (inference_bottom_up_pose_model, init_pose_model)
 from mmpose.datasets import DatasetInfo
 
 project_name = 'BatteryPoleEar'
-dataset_path = f'/data/14-调试数据/txj/BatteryPoleEar/data/blue_reduce_image_result/coco/train'
+dataset_path = f'/data/14-调试数据/txj/BatteryPoleEar/data/line_reduce_image_result/coco/train'
 file_root = dataset_path  # 当前文件夹下的所有图片
 Run_config = "configs2/CYS.210905-极耳翻折-CATL-检测层数/CYS.210905-极耳翻折-CATL-测试层数-BottomUp_配置文件_数量一致_一层检测网络.py"
 Pose_checkpoint = '/data/txj/mmpose/work_dirs/CYS.210905-极耳翻折-CATL-测试层数-BottomUp_配置文件_数量一致_一层检测网络/epoch_500.pth'
@@ -109,6 +110,9 @@ def main():
             pose_nms_thr=args.pose_nms_thr,
             return_heatmap=return_heatmap,
             outputs=output_layer_names)
+        for i in range(len(pose_results)):
+            pose_results[i] = np.unique(pose_results[i]['keypoints'], axis=0)
+
 
         if args.out_img_root == '':
             out_file = None
@@ -119,9 +123,9 @@ def main():
                 f'vis_{osp.splitext(osp.basename(image_name))[0]}.jpg')
         img = cv2.imread(image_name)
         for i in range(len(pose_results)):
-            for j in range(len(pose_results[i]['keypoints'])):
-                x, y = pose_results[i]['keypoints'][j][0:2]
-                cv2.circle(img, (int(x), int(y)), 5, (255, 0, 0), -1)
+            for j in range(len(pose_results[i])):
+                x, y = pose_results[i][j][0:2]
+                cv2.circle(img, (int(x), int(y)), 2, (255, 0, 0), -1)
 
         cv2.imwrite(out_file, img)
         print(image_name)

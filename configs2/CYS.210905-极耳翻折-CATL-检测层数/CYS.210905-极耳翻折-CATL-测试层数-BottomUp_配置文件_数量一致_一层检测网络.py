@@ -4,7 +4,7 @@ custom_imports = dict(imports=['sonic_ai.losses.sonic_multi_loss_factory', 'soni
                       allow_failed_imports=True)
 _base_ = [
     '/data/txj/mmpose/configs/_base_/default_runtime.py',
-    './CYS.210905-极耳翻折-CATL-测试层数骨骼点配置-统一类-统一编号-37.py'
+    './CYS.210905-极耳翻折-CATL-测试层数骨骼点配置-统一类-统一编号(新版).py'
 ]
 save_model_path = '/data/14-调试数据/txj/CYS.210905-极耳翻折-CATL/'
 project_name = 'BatteryPoleEar'
@@ -174,7 +174,7 @@ val_pipeline = [
 
 test_pipeline = val_pipeline
 
-data_root = '/data/14-调试数据/txj/BatteryPoleEar/data/line_reduce_image_result/coco'
+data_root = '/data/14-调试数据/txj/BatteryPoleEar/data/blue_reduce_image_result/coco'
 data = dict(
     workers_per_gpu=2,
     train_dataloader=dict(samples_per_gpu=24),

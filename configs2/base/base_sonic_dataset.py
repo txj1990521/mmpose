@@ -1,5 +1,6 @@
 custom_imports = dict(
     imports=['sonic_ai.sonic_keypoint_dataset',
+             'sonic_ai.sonic_keypoint_bottom_up_coco_dataset',
              'sonic_ai.sonic_epoch_based_runner',
              'sonic_ai.pipelines.init_pipeline',
              'sonic_ai.pipelines.eval_pipeline',

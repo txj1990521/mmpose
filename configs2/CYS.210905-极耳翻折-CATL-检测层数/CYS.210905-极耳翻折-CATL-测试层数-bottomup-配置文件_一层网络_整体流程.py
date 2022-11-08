@@ -1,5 +1,4 @@
 import time
-
 from configs2.base.base_sonic_dataset import Setinference_channel
 from sonic_ai.pipelines.init_pipeline import LoadCategoryList
 
@@ -10,7 +9,7 @@ _base_ = ['../base/default_runtime.py',
           './CYS.210905-极耳翻折-CATL-测试层数骨骼点配置-统一类-统一编号(新版).py']
 # 服务器路径
 project_name = 'BatteryPoleEar'
-dataset_path = '/data/14-调试数据/txj/BatteryPoleEar/data/blue_reduce_image_lableme'
+dataset_path = '/data2/4-标注任务/CYS.210905-极耳翻折-CATL/blue_image_new'
 label_path = dataset_path + '/label.ini'
 dataset_path_list = [f'{dataset_path}']
 num_classes = len(
@@ -24,7 +23,7 @@ dataset_type = 'SonicBottomUpPoseDataset'
 save_model_path = '/data/14-调试数据/txj/CYS.210905-极耳翻折-CATL/BatteryPoleEar'
 badcase_path = save_model_path
 timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
-total_epochs = 200
+total_epochs = 300
 checkpoint_config = dict(interval=5)
 evaluation = dict(interval=1000, metric='mAP', save_best='AP')
 num_people = 50
@@ -72,14 +71,14 @@ model = dict(
     keypoint_head=dict(
         type='AESimpleHead',
         in_channels=32,
-        num_joints=50,
+        num_joints=100,
         num_deconv_layers=0,
         tag_per_joint=True,
         with_ae_loss=[True],
         extra=dict(final_conv_kernel=1, ),
         loss_keypoint=dict(
             type='MultiLossFactory',
-            num_joints=50,
+            num_joints=100,
             num_stages=1,
             ae_loss_type='exp',
             with_ae_loss=[True],
@@ -89,7 +88,7 @@ model = dict(
             heatmaps_loss_factor=[1.0])),
     train_cfg=dict(),
     test_cfg=dict(
-        num_joints=50,
+        num_joints=100,
         max_num_people=50,
         scale_factor=[1],
         with_heatmaps=[True],
@@ -196,8 +195,8 @@ test_init_pipeline = [
 ]
 data = dict(
     persistent_workers=False,
-    samples_per_gpu=16,
-    workers_per_gpu=0,
+    samples_per_gpu=4,
+    workers_per_gpu=2,
     val_dataloader=dict(samples_per_gpu=32),
     test_dataloader=dict(samples_per_gpu=32),
     train=dict(
@@ -250,4 +249,4 @@ lr_config = dict(
     warmup='linear',
     warmup_iters=50,
     warmup_ratio=0.001,
-    step=[170, 200])
+    step=[220, 280])

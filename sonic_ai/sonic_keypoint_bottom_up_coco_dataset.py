@@ -116,7 +116,7 @@ class SonicBottomUpPoseDataset(BottomUpCocoDataset):
     def _get_joints(self, anno):
         """Get joints for all people in an image."""
         num_people = len(anno)
-        self.ann_info['num_joints'] = 50
+        self.ann_info['num_joints'] = 100
         if self.ann_info['scale_aware_sigma']:
             joints = np.zeros((num_people, self.ann_info['num_joints'], 4),
                               dtype=np.float32)

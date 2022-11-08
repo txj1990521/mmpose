@@ -10,7 +10,7 @@ dataset_info = dict(
     keypoint_info={
         0:
             dict(
-                name='pliesPoint',
+                name='1',
                 id=0,
                 color=[0, 128, 255],
                 type='',
@@ -18,7 +18,7 @@ dataset_info = dict(
     },
     skeleton_info={
         0:
-            dict(link=('pliesPoint', 'pliesPoint'), id=0, color=[0, 255, 0]),
+            dict(link=('1', '1'), id=0, color=[0, 255, 0]),
     },
     joint_weights=[1.] * 1,
     sigmas=[0.026, ])
